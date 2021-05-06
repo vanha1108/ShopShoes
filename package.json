@@ -6,13 +6,34 @@
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.6.1",
+    "googleapis": "^63.0.0",
+    "http-proxy-middleware": "^1.0.6",
+    "jsonwebtoken": "^8.5.1",
+    "multer": "^1.4.2",
+    "nodemailer": "^6.4.14",
+    "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
+    "paypal-rest-sdk": "^1.8.1",
+    "pg": "^8.3.3",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^6.3.5",
+    "sequelize-cli": "^6.2.0",
+    "uuid": "^8.3.0",
+    "nodemon": "^2.0.6",
     "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "~4.16.1",
-    "http-errors": "~1.6.3",
-    "jade": "~1.11.0",
-    "mongoose": "^5.12.7",
     "morgan": "~1.9.1",
-    "nodemon": "^2.0.7"
-  }
+    "mongoose": "^5.12.7",
+    "jade": "~1.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  },
+  "proxy": "http://localhost:5000"
 }
