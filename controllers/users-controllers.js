@@ -68,12 +68,9 @@ const register = async(req, res, next) =>{
         return next(error);
     }
     const { fullName, email, password } = req.body;
-
     let userEmail;
     try{
-    userEmail = await User.findOne({
-        where: {email: email }
-    });
+    userEmail = await User.findOne({email: email });
     } catch (err) {
         const error = new HttpError('Signup Fail!. Pls try again', 500);
         return next(error);
@@ -100,47 +97,28 @@ const register = async(req, res, next) =>{
         fullName,
         email,
         isAdmin: false,
-        isConfirm: false,
-        isLock: false,
         score: 0,
         password: hashedPassword
     };
     let Users;
     try {
         Users = await User.create(createdUser);
+        console.log("Create: " + Users);
     } catch(err) {
         const error = new HttpError('Signing up failed, please try again later.',500);
         return next(error)
     } 
-
-    let token;
-    try {
-        token = getToken(createdUser); 
-    } catch (err) {
-        const error = new HttpError('Signing up failed, please try again later.',500);
-         return next(error)
-    }
-    const url = `${PORT}/api/user/confirmation/${token}`;
-    transporter.sendMail({
-        to: createdUser.email,
-        subject: 'Confirm Email',
-        html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
-      });
-    res.status(201).json({
+    res.status(200).json({
         email: createdUser.email, isAdmin: createdUser.isAdmin, token:token
     });
 };
 
 const login = async(req,res,next) => {
     const {email, password} = req.body;
-    console.log("email:",email);
     var existingUser;
 
     try{
-        existingUser = await User.findOne({
-            where: {email: email }
-        });
-        console.log("###",existingUser);
+        existingUser = await User.findOne({email: email });
     } catch (err) {
         const error = new HttpError('Login failed. Pls try again', 500);
         return next(error);
@@ -148,14 +126,8 @@ const login = async(req,res,next) => {
     }
     
     if(!existingUser) {
-        console.log("vào lỗi 2");
         const error = new HttpError('Email or Password is invalid', 401);
-        return next(error);
-        
-    }
-    if(existingUser.isConfirm === false || existingUser.isLock === true ) {
-        const error = new HttpError('Your account is not confirm or was locked', 401);
-        return next(error);
+        return next(error);  
     }
 
     let isValidPassword;
@@ -167,7 +139,6 @@ const login = async(req,res,next) => {
     }
 
     if(!isValidPassword){
-        
         const error = new HttpError('Email or Password is invalid', 401);
         return next(error);
     }
@@ -189,139 +160,6 @@ const login = async(req,res,next) => {
 
 }
 
-const loginGoogle = async(req, res, next) => {
-    let existingUser;
-    existingUser = await User.findOne({
-        where: { email: userProfile._json.email }
-    });
-    if (!existingUser) {
-        const createdUser = {
-            googleId: userProfile._json.sub,
-            fullName: userProfile._json.name,
-            email: userProfile._json.email,
-            authType: 2,
-            isAdmin: false,
-            isConfirm: true,
-            isLock: false,
-            score: 0
-        };
-        let Users;
-        try {
-            Users = await User.create(createdUser);
-        } catch (err) {
-            const error = new HttpError('Signing up failed, please try again later.', 500);
-            return next(error)
-        }
-        let token;
-        try {
-            token = getToken(createdUser);
-        } catch (err) {
-            const error = new HttpError('Login failed, please try again later.', 500);
-            return next(error)
-        }
-        var responseHTML = '<html><head><title>Main</title></head><body></body><script>res = %value%; window.opener.postMessage(res, "*");window.close();</script></html>'
-        responseHTML = responseHTML.replace('%value%', JSON.stringify({
-            user: existingUser,
-            token: token
-        }));
-        res.status(200).send(responseHTML);
-        // res.status(200).json({
-        //     createdUser,
-        //     token: token
-        // })
-    }
-    else {
-        if (existingUser.isConfirm === false || existingUser.isLock === true) {
-            const error = new HttpError('Your account is not confirm or was locked', 401);
-            return next(error);
-        }
-
-        let token;
-        try {
-            token = getToken(existingUser);
-        } catch (err) {
-            const error = new HttpError('Login failed, please try again later.', 500);
-            return next(error)
-        }
-        var responseHTML = '<html><head><title>Main</title></head><body></body><script>res = %value%; window.opener.postMessage(res, "*");window.close();</script></html>'
-        responseHTML = responseHTML.replace('%value%', JSON.stringify({
-            user: existingUser,
-            token: token
-        }));
-        res.status(200).send(responseHTML);
-        // res.status(200).json({
-        //     existingUser,
-        //     token: token
-        // })
-    }
-}
-const loginFacebook = async (req, res, next) =>{
-    let existingUser;
-    existingUser = await User.findOne({
-        where: { email: userProfile._json.email }
-    });
-    if (!existingUser) {
-        const createdUser = {
-            googleId: userProfile._json.sub,
-            fullName: userProfile._json.name,
-            email: userProfile._json.email,
-            authType: 2,
-            isAdmin: false,
-            isConfirm: true,
-            isLock: false,
-            score: 0
-        };
-        let Users;
-        try {
-            Users = await User.create(createdUser);
-        } catch (err) {
-            const error = new HttpError('Signing up failed, please try again later.', 500);
-            return next(error)
-        }
-        let token;
-        try {
-            token = getToken(createdUser);
-        } catch (err) {
-            const error = new HttpError('Login failed, please try again later.', 500);
-            return next(error)
-        }
-        var responseHTML = '<html><head><title>Main</title></head><body></body><script>res = %value%; window.opener.postMessage(res, "*");window.close();</script></html>'
-        responseHTML = responseHTML.replace('%value%', JSON.stringify({
-            user: existingUser,
-            token: token
-        }));
-        res.status(200).send(responseHTML);
-        // res.status(200).json({
-        //     createdUser,
-        //     token: token
-        // })
-    }
-    else {
-        if (existingUser.isConfirm === false || existingUser.isLock === true) {
-            const error = new HttpError('Your account is not confirm or was locked', 401);
-            return next(error);
-        }
-
-        let token;
-        try {
-            token = getToken(existingUser);
-        } catch (err) {
-            const error = new HttpError('Login failed, please try again later.', 500);
-            return next(error)
-        }
-        var responseHTML = '<html><head><title>Main</title></head><body></body><script>res = %value%; window.opener.postMessage(res, "*");window.close();</script></html>'
-        responseHTML = responseHTML.replace('%value%', JSON.stringify({
-            user: existingUser,
-            token: token
-        }));
-        res.status(200).send(responseHTML);
-        // res.status(200).json({
-        //     existingUser,
-        //     token: token
-        // })
-    }
-}
-
 const getMyUser = async (req, res, next) => {
     let users;
     try{
@@ -340,33 +178,6 @@ const getMyUser = async (req, res, next) => {
     }
     res.status(200).json({users});
 };
-
-const getConfirmation = async(req, res, next) => {
-    const token = req.params.token;
-    const decodedToken = jwt.verify(token, JWT_SECRET);
-    const userData = {
-        email: decodedToken.email
-    };
-    const updatedUser = {
-        isConfirm: true
-    };
-    let users;
-    try{
-        users = await User.update(updatedUser,{
-            where: { email: userData.email}
-        });
-    } catch (err) {
-        const error = new HttpError('Your confirmation is out of time', 500);
-        return next(error);
-    }
-
-    if(!users)
-    {
-        const error =  new HttpError('Could not find any users', 404);
-        return next(error);
-    }
-    res.status(200).json({message: 'Success'});
-}
 
 const updateMyUser = async(req, res, next) => {
     let users;
@@ -486,4 +297,4 @@ const lockUser = async(req, res, next) => {
     res.status(200).json({message: 'Update success'});
 }
 
-module.exports = {getUser, getMyUser,  register, login, getConfirmation, updateMyUser, getUserById, lockUser, loginGoogle, loginFacebook};
+module.exports = {getUser, getMyUser,  register, login, updateMyUser, getUserById, lockUser};

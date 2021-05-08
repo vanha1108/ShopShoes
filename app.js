@@ -3,19 +3,12 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const  PORT = process.env.PORT;
 
 // var indexRouter = require('./routes/index');
 // var usersRouter = require('./routes/users');
 const connectDB = require('./models/Connection');
-
 require('dotenv').config();
-const fs = require('fs');
-
-const bodyParser = require('body-parser'); 
-const cors = require('cors');
-const passport = require('passport');
-const passportConfig = require('./middleware/passport');
-const {PORT} = require('./config')
 
 const brandRoutes  = require('./routes/brand-routes'); 
 const userRoutes  = require('./routes/user-routes');
@@ -26,7 +19,6 @@ const sizeRoutes = require('./routes/size-routes');
 const orderRoutes = require('./routes/order-routes');
 const promotionRoutes = require('./routes/promotion-routes');
 const importRoutes = require('./routes/import-routes');
-const HttpError = require('./error-handle/http-error');
 
 var app = express();
 
@@ -43,8 +35,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-
-
 app.use('/api/product', productRoutes);
 app.use('/api/brand', brandRoutes);
 app.use('/api/category', categoryRoutes);
@@ -54,13 +44,6 @@ app.use('/api/size', sizeRoutes);
 app.use('/api/order', orderRoutes);
 app.use('/api/promotion',promotionRoutes);
 app.use('/api/import',importRoutes);
-app.get('/sync', (req, res) =>{
-    let models = require('./models');
-    models.sequelize.sync()
-    .then(() =>{
-        res.send('Database sync completed!')
-    });
-});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -77,5 +60,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.listen(PORT); 
 
 module.exports = app;

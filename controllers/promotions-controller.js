@@ -2,8 +2,6 @@ const HttpError = require('../error-handle/http-error');  //dùng để giải q
 // const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
 const Promotion = require('../models/promotion');
 const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op; 
 
 const getAllPromotion = async (req, res, next) => {
     let promotions;
@@ -22,8 +20,6 @@ const getAllPromotion = async (req, res, next) => {
     res.status(200).json({promotions});
 
 };
-
-
 
 const createPromotion = async (req, res, next) => {
     const errors = validationResult(req);
@@ -50,9 +46,7 @@ const deletePromotionById = async (req, res, next) => {
     const promotionId = req.params.promotionId;
     let promotions;
     try{
-        promotions = await Promotion.destroy(
-            {where: {id: promotionId} 
-        });
+        promotions = await Promotion.findByIdAndDelete({id: promotionId});
     }
     catch (err) {
         const error = new HttpError('Something went wrong, can not delete', 500);
@@ -83,9 +77,7 @@ const updatePromotion = async (req, res, next) => {
         endDate: req.body.endDate
       };
     let promotions;
-    promotions = await Promotion.update(updatedPromotion, {
-        where: {id: promotionId}
-    });
+    promotions = await Promotion.updateOne(updatedPromotion, {id: promotionId});
     res.status(200).json({promotion: updatedPromotion});
     
 }

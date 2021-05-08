@@ -5,7 +5,6 @@ const Group = require('../models/group');
 const { getAlias, decodeAlias } = require("../middleware/utilities");
 const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
 const Sequelize = require('sequelize');
-const Op = Sequelize.Op; 
 
 
 const getAllCategory = async (req, res, next) => {
@@ -42,7 +41,7 @@ const getAllCategory = async (req, res, next) => {
         return next(errReturn);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         categories,
     });
 
@@ -79,7 +78,7 @@ const createCategory = async (req, res, next) => {
         let categories
         categories = await Category.create(createdCategory);
         res.status(201).json({
-            success: "SYSS02",
+            success: true,
             categories,
         });
     }
@@ -95,7 +94,7 @@ const createCategory = async (req, res, next) => {
         let categories
         categories = await Category.create(createdCategory);
         res.status(201).json({
-            success: "SYSS02",
+            success: true,
             categories,
         });
     }
@@ -105,11 +104,7 @@ const getCategoryByAlias = async (req, res, next) => {
     const alias = req.params.alias;
     let categories;
     try{
-        categories = await Category.findOne({
-            where: {
-                alias: alias
-            }
-        });
+        categories = await Category.findOne({ alias: alias });
     } catch (err) {
         const error = new HttpError('Something went wrong, coud not find any category', 500);
         let errReturn;
@@ -131,7 +126,7 @@ const getCategoryByAlias = async (req, res, next) => {
         return next(errReturn);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         categories,
     });
 
@@ -141,7 +136,7 @@ const getCategoryById = async (req, res, next) => {
     const cateId = req.params.cateId;
     let categories;
     try{
-        categories = await Category.findByPk(cateId);
+        categories = await Category.findById(cateId);
         
     } catch (err) {
         const error = new HttpError('Something went wrong, coud not find any category', 500);
@@ -163,7 +158,7 @@ const getCategoryById = async (req, res, next) => {
         };
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         categories,
     });
 
@@ -173,9 +168,7 @@ const deleteCategoryById = async (req, res, next) => {
     const cateId = req.params.cateId;
     let categories;
     try{
-        categories = await Category.destroy(
-            {where: {id: cateId} 
-        });
+        categories = await Category.findByIdAndDelete({id: cateId});
     }
     catch (err) {
         const error = new HttpError('Something went wrong, can not delete', 500);
@@ -187,7 +180,7 @@ const deleteCategoryById = async (req, res, next) => {
         const error =  new HttpError('Could not find any category', 404);
         return next(error);
     }
-    res.status(200).json({success: "SYSS03",message: 'Deleted category:'});
+    res.status(200).json({success: true,message: 'Deleted category:'});
     
 }
 
@@ -219,10 +212,8 @@ const updateCategoryById = async (req, res, next) => {
             alias: getAlias(req.body.name)
           };
         let categories
-        categories = await Category.update(updatedCategory, {
-            where: {id: cateId}
-        });
-        res.status(200).json({success: "SYSS04",categories: updatedCategory});
+        categories = await Category.updateOne(updatedCategory,{id: cateId});
+        res.status(200).json({success: true,categories: updatedCategory});
     }
     else 
     {
@@ -234,13 +225,9 @@ const updateCategoryById = async (req, res, next) => {
           };
           console.log(req.file);
         let categories
-        categories = await Category.update(updatedCategory, {
-            where: {alias: alias}
-        });
-        res.status(200).json({success: "SYSS04",categories: updatedCategory});
+        categories = await Category.updateOne(updatedCategory, {alias: alias});
+        res.status(200).json({success: true,categories: updatedCategory});
     }
-    
-    
 }
 
 module.exports = { getAllCategory, getCategoryById, getCategoryByAlias, createCategory, deleteCategoryById, updateCategoryById};

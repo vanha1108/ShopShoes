@@ -2,8 +2,6 @@ const HttpError = require('../error-handle/http-error');  //dùng để giải q
 // const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
 const Size = require('../models/size');
 const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op; 
 
 const getAllSize = async (req, res, next) => {
     let sizes;
@@ -29,11 +27,7 @@ const getAllSizeByType = async (req, res, next) => {
     console.log(sizeTypeName)
     let listSize;
     try{
-        listSize = await Size.findAll({
-            where: {
-                sizeType: sizeTypeName
-            }
-        })
+        listSize = await Size.findAll({ sizeType: sizeTypeName });
     }
     catch(err)
     {
@@ -71,9 +65,7 @@ const deleteSizeById = async (req, res, next) => {
     const sizeId = req.params.sizeId;
     let sizes;
     try{
-        sizes = await Size.destroy(
-            {where: {id: sizeId} 
-        });
+        sizes = await Size.findById({id: sizeId});
     }
     catch (err) {
         const error = new HttpError('Something went wrong, can not delete', 500);
@@ -102,11 +94,8 @@ const updateSize = async (req, res, next) => {
         sizeType: req.body.sizeType
       };
     let sizes;
-    sizes = await Size.update(updatedSize, {
-        where: {id: sizeId}
-    });
-    res.status(200).json({size: updatedSize});
-    
+    sizes = await Size.updateOne(updatedSize, {id: sizeId});
+    res.status(200).json({size: updatedSize}); 
 }
 
 module.exports = { getAllSize, createSize, deleteSizeById, updateSize, getAllSizeByType};

@@ -3,8 +3,6 @@ const HttpError = require("../error-handle/http-error"); //dùng để giải qu
 const Brand = require("../models/brand");
 const { validationResult } = require("express-validator"); //lấy dc lỗi từ body validate
 const { getAlias, decodeAlias } = require("../middleware/utilities");
-const Sequelize = require("sequelize");
-const Op = Sequelize.Op;
 
 const getAllBrand = async (req, res, next) => {
     let brands;
@@ -23,7 +21,7 @@ const getAllBrand = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         brands
     });
 };
@@ -48,7 +46,7 @@ const createBrand = async (req, res, next) => {
         let brands;
         brands = await Brand.create(createdBrand);
         res.status(201).json({
-            success: "SYSS02",
+            success: true,
             brands,
         });
     } else {
@@ -60,8 +58,8 @@ const createBrand = async (req, res, next) => {
         };
         let brands;
         brands = await Brand.create(createdBrand);
-        res.status(201).json({
-            success: "SYSS02",
+        res.status(200).json({
+            success: true,
             brands,
         });
     }
@@ -71,9 +69,7 @@ const getBrandByAlias = async (req, res, next) => {
     const brandAlias = req.params.alias;
     let brands;
     try {
-        brands = await Brand.findOne({
-            where: { alias: brandAlias },
-        });
+        brands = await Brand.findOne({ alias: brandAlias });
     } catch (err) {
         const error = new HttpError(
             "System went wrong, coud not find any Brand",
@@ -87,7 +83,7 @@ const getBrandByAlias = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         brands,
     });
 };
@@ -96,7 +92,7 @@ const getBrandById = async (req, res, next) => {
     const brandId = req.params.brandId;
     let brands;
     try {
-        brands = await Brand.findByPk(brandId);
+        brands = await Brand.findById(brandId);
     } catch (err) {
         const error = new HttpError(
             "System went wrong, coud not find any Brand",
@@ -110,7 +106,7 @@ const getBrandById = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         brands,
     });
 };
@@ -119,7 +115,7 @@ const deleteBrandById = async (req, res, next) => {
     const brandId = req.params.brandId;
     let brands;
     try {
-        brands = await Brand.destroy({ where: { id: brandId } });
+        brands = await Brand.findByIdAndDelete({ id: brandId});
     } catch (err) {
         const error = new HttpError("Something went wrong, can not delete", 500);
         return next(error);
@@ -129,7 +125,7 @@ const deleteBrandById = async (req, res, next) => {
         const error = new HttpError("Could not find any Brand", 204);
         return next(error);
     }
-    res.status(200).json({ success: "SYSS03" ,message: "Deleted Brand:" });
+    res.status(200).json({ success: true ,message: "Deleted Brand:" });
 };
 
 const updateBrandById = async (req, res, next) => {
@@ -152,10 +148,8 @@ const updateBrandById = async (req, res, next) => {
             alias: getAlias(req.body.name)
         };
         let brands;
-        brands = await Brand.update(updatedBrand, {
-            where: { id: brandId },
-        });
-        res.status(200).json({ success: "SYSS04" ,brands: updatedBrand });
+        brands = await Brand.updateOne(updatedBrand,{ id: brandId });
+        res.status(200).json({ success: true ,brands: updatedBrand });
     } else {
         const updatedBrand = {
             name: req.body.name,
@@ -164,10 +158,8 @@ const updateBrandById = async (req, res, next) => {
             alias: getAlias(req.body.name)
         };
         let brands;
-        brands = await Brand.update(updatedBrand, {
-            where: { id: brandId },
-        });
-        res.status(200).json({success: "SYSS04" ,brands: updatedBrand });
+        brands = await Brand.updateOne(updatedBrand, { id: brandId });
+        res.status(200).json({success: true ,brands: updatedBrand });
     }
 };
 

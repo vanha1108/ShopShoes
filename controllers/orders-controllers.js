@@ -3,16 +3,12 @@ const HttpError = require('../error-handle/http-error');  //dùng để giải q
 const Category = require('../models/category');
 const Brand = require('../models/brand');
 const Product = require('../models/product');
-const Group = require('../models/group');
 const Promotion = require('../models/promotion');
 const User = require('../models/user');
 const Order = require('../models/order');
 const OrderDetail = require('../models/orderdetail');
 const ProductSize = require('../models/productsize');
 const Size = require('../models/size');
-const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
 const { create_payment, execute_payment } = require('../middleware/paypal');
 const paypal = require('paypal-rest-sdk');
 
@@ -56,7 +52,7 @@ const getAllOrder = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         orders
     });
 }
@@ -64,13 +60,9 @@ const getAllOrder = async (req, res, next) => {
 const addOrder = async (req, res, next) => {
     let users;
     let userCurrent = req.userData.email;
-    console.log(req.userData)
-    console.log(userCurrent);
+
     try {
-        users = await User.findOne({
-            where: { email: userCurrent }
-        });
-        console.log(users);
+        users = await User.findOne({ email: userCurrent });
     } catch (err) {
         const error = new HttpError('You are not log in. Pls login', 401);
         return next(error);
@@ -116,11 +108,8 @@ const updateOrderById = async (req, res, next) => {
         fullName: req.body.fullName,
         phone: req.body.phone,
     }
-    console.log(orderUpdated)
     let updateOrder;
-    updateOrder = await Order.update(orderUpdated, {
-        where: { id: orderId }
-    });
+    updateOrder = await Order.updateOne(orderUpdated, { id: orderId });
 
     if (req.body.status === 4)            //1: Đã đặt, 2: Đã Duyệt, 3:Đã Thanh Toán, 4: Đã Nhận Hàng
     {
@@ -131,10 +120,7 @@ const updateOrderById = async (req, res, next) => {
         const userUpdated = {
             score: orderById.totalPrice
         }
-        userChange = await User.update(userUpdated,
-            {
-                where: { id: orderById.userId }
-            });
+        userChange = await User.updateOne(userUpdated, { id: orderById.userId });
     }
     res.status(200).json({ updateOrder })
 
@@ -148,30 +134,21 @@ const addOrderDetail = async (req, res, next) => {
         unitPrice: req.body.unitPrice,
         productSizeId: req.body.productSizeId
     };
-    console.log(orderDetails)
+
     try {
         orderItem = await OrderDetail.create(orderDetails)
-        console.log(orderItem)
     } catch (err) {
         const error = new HttpError('There is system error. Pls try again', 500);
         return next(error);
     }
     let findProductSize;
-    findProductSize = await ProductSize.findOne(
-        {
-            where: {
-                id: req.body.productSizeId
-            },
-        }
-    );
+    findProductSize = await ProductSize.findOne({ id: req.body.productSizeId });
+
     let amountProductSize;
     amountProductSize = findProductSize.productCount - req.body.unitAmount;
+
     let updateProductSize;
-    updateProductSize = await ProductSize.update({ productCount: amountProductSize }, {
-        where: {
-            id: findProductSize.id
-        }
-    })
+    updateProductSize = await ProductSize.updateOne({ productCount: amountProductSize }, { id: findProductSize.id });
     res.status(200).json({ orderItem });
 }
 
@@ -184,39 +161,32 @@ const returnDetail = async (req, res, next) => {
 
     let orderDetails;
     try {
-        orderDetails = await OrderDetail.update(orderDetailReturn, {
-            where: { id: detailId }
-        });
+        orderDetails = await OrderDetail.updateOne(orderDetailReturn, { id: detailId });
+
         let orderDetailReturned;
-        orderDetailReturned = await OrderDetail.findByPk(detailId);
-        console.log(orderDetailReturned)
+        orderDetailReturned = await OrderDetail.findById(detailId);
+      
         let orderByDetailId;
         let promoteCode;
         let promotionValue = 0;
+
         try {
-            orderByDetailId = await Order.findByPk(orderDetailReturned.orderId);
+            orderByDetailId = await Order.findById(orderDetailReturned.orderId);
             promoteCode = orderByDetailId.promotionCode;
-            console.log(orderByDetailId)
+
             if (promoteCode !== null) {
                 let promotion;
-                promotion = await Promotion.findOne({
-                    where: {
-                        promotionCode: promoteCode
-                    }
-                });
-
+                promotion = await Promotion.findOne({ promotionCode: promoteCode });
 
                 promotionValue = promotion.promotionValue;
-                console.log(promotion.promotionValue)
             }
         }
         catch {
 
         }
-        console.log(promotionValue)
         let orderReturn;
-        orderReturn = await Order.findByPk(orderDetailReturned.orderId);
-        console.log(orderReturn.totalPrice)
+        orderReturn = await Order.findById(orderDetailReturned.orderId);
+
         let orderPriceUpdate
         orderPriceUpdate = parseFloat(orderReturn.totalPrice) - (parseFloat(orderDetailReturned.unitPrice * orderDetailReturned.unitAmount) * parseFloat(1 - parseFloat(promotionValue)));
 
@@ -225,19 +195,16 @@ const returnDetail = async (req, res, next) => {
         }
 
         let orderUpdate;
-        orderUpdate = Order.update(totalPriceUpdate, {
-            where: { id: orderDetailReturned.orderId }
-        })
+        orderUpdate = Order.updateOne(totalPriceUpdate, { id: orderDetailReturned.orderId })
 
     } catch (err) {
         const error = new HttpError('There is system error. Pls try again', 500);
         return next(error);
     }
-    res.status(200).json({ success: 001 });
+    res.status(200).json({ success: true });
 }
 const payment = async (req, res, next) => {
     const itemsList = JSON.parse(req.body.itemsList)
-    // console.log(req.body.itemsList)
 
     let total;
     total = 0;
@@ -245,11 +212,8 @@ const payment = async (req, res, next) => {
         total += parseFloat(itemsList[i].price) * parseFloat(itemsList[i].quantity);
     }
 
-    console.log(total);
-    console.log(itemsList);
     create_payment(itemsList, total);
     paypal.payment.create(create_payment_json, function (error, payment) {
-        console.log(create_payment_json)
         if (error) {
             throw error;
         } else {
@@ -295,10 +259,7 @@ const getOrderByUserID = async (req, res, next) => {
     console.log(req.userData)
     console.log(userCurrent);
     try {
-        users = await User.findOne({
-            where: { email: userCurrent }
-        });
-        console.log(users);
+        users = await User.findOne({ email: userCurrent });
     } catch (err) {
         const error = new HttpError('You are not log in. Pls login', 401);
         return next(error);

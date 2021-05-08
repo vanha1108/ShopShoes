@@ -3,12 +3,6 @@ var Schema = mongoose.Schema;
 
 var userschema = new Schema(
   {
-    googleId: {
-      type: String,
-    },
-    facebookId: {
-      type: String,
-    },
     fullName: {
       type: String,
     },
@@ -24,9 +18,6 @@ var userschema = new Schema(
     address: {
         type: String,
     },
-    avatarPath: {
-        type: String,
-    },
     gender: {
         type: Number,
     },
@@ -38,15 +29,6 @@ var userschema = new Schema(
     },
     isAdmin: {
         type: Boolean,
-    },
-    isConfirm: {
-        type: Boolean,
-    },
-    isLock: {
-        type: Boolean,
-    },
-    authType: {
-        type: String,
     }
   },
   { collection: "user", timestamps: true }

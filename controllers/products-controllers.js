@@ -9,10 +9,7 @@ const Brand = require('../models/brand');
 const Category = require('../models/category');
 const Size = require('../models/size');
 const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-// const Sequelize = require('sequelize');
-// const Op = Sequelize.Op; 
 
-//
 const getAllProduct = async (req, res, next) => {
     let products;
     try {
@@ -40,7 +37,6 @@ const getAllProduct = async (req, res, next) => {
                 ]
             }
         );
-        console.log(products)
     } catch (err) {
         const error = new HttpError('Something went wrong, coud not find any product', 500);
         return next(error);
@@ -52,40 +48,14 @@ const getAllProduct = async (req, res, next) => {
        
         return next(error);
     }
-    res.status(200).json({success: "SYSS01",products});
+    res.status(200).json({success: true ,products});
 }
 
 const getProductById = async (req, res, next) => {
     const productId = req.params.productId;
     let product;
     try {
-        product = await Product.findOne({
-            where: {
-                id: productId
-            },
-            include: [
-                {
-                    model: Brand,
-                    
-                    
-                },
-                {
-                    model: Category,
-                    include:[{
-                        model: Group
-                    }]
-                },
-                {
-                    model: ProductSize,
-                    include:[{
-                        model: Size
-                    }]
-                },
-                {
-                    model: ProductImage
-                }
-            ]
-        });
+        product = await Product.findOne({ id: productId });
     }
     catch (err) {
         const error = new HttpError('Something went wrong, coud not find any product', 500);
@@ -97,18 +67,14 @@ const getProductById = async (req, res, next) => {
        
         return next(error);
     }
-    res.status(200).json({success: "SYSS01",product});
+    res.status(200).json({success: true, product});
 }
 
 const getProductImageByProductId = async (req,res,next) => {
     const productId = req.params.productId;
     let productImage;
     try {
-        productImage = await ProductImage.findAll({
-            where: {
-                productId: productId
-            }
-        })
+        productImage = await ProductImage.findAll({ productId: productId });
     } catch (err)
     {
         const error = new HttpError('Something went wrong, coud not find any image', 500);
@@ -120,50 +86,27 @@ const getProductImageByProductId = async (req,res,next) => {
        
         return next(error);
     }
-    res.status(200).json({success: "SYSS01",productImage});
+    res.status(200).json({success: true, productImage});
 }
 
 const getProductByAlias = async (req, res, next) => {
     const productAlias = req.params.productAlias;
     let product;
     try {
-        product = await Product.findOne({
-            where: {
-                alias:  productAlias
-            },
-            include: [
-                {
-                    model: Brand,
-                    
-                    
-                },
-                {
-                    model: Category,
-                    include:[{
-                        model: Group
-                    }]
-                },
-                {
-                    model: ProductSize,
-                    include:[{
-                        model: Size
-                    }]
-                }
-            ]
-        });
+        product = await Product.findOne({ alias:  productAlias });
     }
     catch (err) {
         const error = new HttpError('Something went wrong, coud not find any product', 500);
         
         return next(error);
     }
-    console.log(product)
+
     if (!product) {
         const error = new HttpError("Could not find any product", 204);
        
         return next(error);
     }
-    res.status(200).json({success: "SYSS01",product});
+    res.status(200).json({success: true, product});
 }
 
 const createProduct = async (req, res, next) => {
@@ -177,8 +120,7 @@ const createProduct = async (req, res, next) => {
     let image;
     if(typeof (req.file) !== "undefined")
     {
-        image = req.file.path;
-        
+        image = req.file.path; 
     }
     else image = null;
     if(image === null)
@@ -198,7 +140,7 @@ const createProduct = async (req, res, next) => {
           };
         let products;
         products = await Product.create(createdProduct);
-        res.status(200).json({ success: "SYSS02",products});
+        res.status(200).json({ success: true, products});
     }
     else{
         const createdProduct = {
@@ -215,9 +157,8 @@ const createProduct = async (req, res, next) => {
           };
         let products;
         products = await Product.create(createdProduct);
-        res.status(200).json({ success: "SYSS02",products});
-    }
-    
+        res.status(200).json({ success: true, products});
+    } 
 }
 
 const updateProductById = async (req, res, next) => {
@@ -239,7 +180,7 @@ const updateProductById = async (req, res, next) => {
         image = req.file.path;
     }
     else image = null;
-    console.log(image)
+
     if (image === null) {
         const updatedProduct = {
             name: req.body.name,
@@ -255,10 +196,8 @@ const updateProductById = async (req, res, next) => {
             promotion: req.body.promotion
         };
         let products;
-        products = await Product.update(updatedProduct, {
-            where: { id: productId },
-        });
-        res.status(200).json({ success: "SYSS04" ,products: updatedProduct });
+        products = await Product.updateOne(updatedProduct, { id: productId });
+        res.status(200).json({ success: true ,products: updatedProduct });
     } else {
         const updatedProduct = {
             name: req.body.name,
@@ -275,10 +214,8 @@ const updateProductById = async (req, res, next) => {
             promotion: req.body.promotion
         };
         let products;
-        products = await Product.update(updatedProduct, {
-            where: { id: productId },
-        });
-        res.status(200).json({ success: "SYSS04" ,products: updatedProduct });
+        products = await Product.updateOne(updatedProduct, { id: productId });
+        res.status(200).json({ success: true ,products: updatedProduct });
     }
 };
 
@@ -287,7 +224,7 @@ const updateProductById = async (req, res, next) => {
 const createProductSize = async (req, res, next) => {
     let products;
     try{
-        products = await Product.findByPk(req.body.productId);
+        products = await Product.findById(req.body.productId);
     } catch (err) {
         const error = new HttpError('Could not find any Product', 404);
         return next(error);
@@ -310,8 +247,6 @@ const createProductImage = async (req, res, next) => {
     }
     let productImage;
     productImage = await ProductImage.create(createdProductImage);
-    console.log(productImage)
-    
     res.status(200).json({productImage});
 }
 
@@ -321,19 +256,15 @@ const updateProductImage = async (req, res, next) => {
         imagePath: req.file.path
       };
     let productImage;
-    productImage = await ProductImage.update(updatedImage, {
-        where: {id: productImageId}
-    });
-    res.status(200).json({success: "SYSS04",ProductImage: updatedImage});
+    productImage = await ProductImage.updateOne(updatedImage, {id: productImageId});
+    res.status(200).json({success: true, ProductImage: updatedImage});
 }
 
 const deleteProductImage = async (req, res, next) => {
     const productImageId = req.params.productImageId;
     let productImage;
     try{
-        productImage = await ProductImage.destroy(
-            {where: {id: productImageId} 
-        });
+        productImage = await ProductImage.findByIdAndDelete({id: productImageId});
     }
     catch (err) {
         const error = new HttpError('Something went wrong, can not delete', 500);
@@ -345,7 +276,7 @@ const deleteProductImage = async (req, res, next) => {
         const error =  new HttpError('Could not find any ProductImage', 404);
         return next(error);
     }
-    res.status(200).json({success: "SYSS03",message: 'Deleted ProductImage:'});
+    res.status(200).json({success: true, message: 'Deleted ProductImage:'});
 }
 
 /* const getProductSizeByProductAndSizeId = async (req, res, next) => {

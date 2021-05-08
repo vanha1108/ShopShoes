@@ -1,16 +1,11 @@
 const HttpError = require('../error-handle/http-error');  //dùng để giải quyết error
 // const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
-const {getAlias,decodeAlias} = require('../middleware/utilities')
 const Product = require('../models/product');
 const ProductSize = require('../models/productsize');
 const Brand = require('../models/brand');
-const ProductImage = require('../models/productimage');
 const Size = require('../models/size');
 const Import = require('../models/import');
 const ImportDetail = require('../models/importdetail');
-const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op; 
 
 const getAllImport = async (req, res, next) => {
     let imports;
@@ -52,7 +47,7 @@ const getAllImport = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         imports
     });
 }
@@ -100,25 +95,16 @@ const getImportByProductId = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         imports
     });
 } 
-
-const getImporByPublisherName = async (req, res, next) => {
-
-}
-
-const getImportByDate = async (req, res, next) => {
-
-}
 
 const addImport = async (req, res, next) => {
     const importCreated = {
         importCode: req.body.importCode,
         publisherName: req.body.publisherName
     }
-    console.log(importCreated)
     let createImport;
     createImport = await Import.create(importCreated);
     res.status(200).json({createImport});

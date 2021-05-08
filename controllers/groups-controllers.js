@@ -4,7 +4,6 @@ const Group = require('../models/group');
 const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
 const Sequelize = require('sequelize');
 const { getAlias, decodeAlias } = require("../middleware/utilities");
-const Op = Sequelize.Op; 
 
 const getAllGroup = async (req, res, next) => {
     let Groups;
@@ -22,7 +21,7 @@ const getAllGroup = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         Groups,
     });
 };
@@ -48,7 +47,7 @@ const createGroup = async (req, res, next) => {
         let Groups;
         Groups = await Group.create(createdGroup);
         res.status(201).json({
-            success: "SYSS02",
+            success: true,
             Groups,
         });
     } else {
@@ -61,7 +60,7 @@ const createGroup = async (req, res, next) => {
         let Groups;
         Groups = await Group.create(createdGroup);
         res.status(201).json({
-            success: "SYSS02",
+            success: true,
             Groups,
         });
     }
@@ -72,9 +71,7 @@ const getGroupByAlias = async (req, res, next) => {
     const GroupAlias = req.params.alias;
     let Groups;
     try {
-        Groups = await Group.findOne({
-            where: { alias: GroupAlias },
-        });
+        Groups = await Group.findOne({ alias: GroupAlias });
     } catch (err) {
         const error = new HttpError(
             "System went wrong, coud not find any Group",
@@ -90,7 +87,7 @@ const getGroupByAlias = async (req, res, next) => {
         return next(error);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         Groups,
     });
 };
@@ -100,7 +97,7 @@ const getGroupById = async (req, res, next) => {
     const groupId = req.params.groupId;
     let Groups;
     try {
-        Groups = await Group.findByPk(groupId);
+        Groups = await Group.findById(groupId);
     } catch (err) {
         const error = new HttpError(
             "System went wrong, coud not find any Group",
@@ -124,7 +121,7 @@ const getGroupById = async (req, res, next) => {
         return next(errReturn);
     }
     res.status(200).json({
-        success: "SYSS01",
+        success: true,
         Groups,
     });
 };
@@ -134,7 +131,7 @@ const deleteGroupById = async (req, res, next) => {
     const groupId = req.params.groupId;
     let Groups;
     try {
-        Groups = await Group.destroy({ where: { id: groupId } });
+        Groups = await Group.findByIdAndDelete({ id: groupId });
     } catch (err) {
         const error = new HttpError("System went wrong, can not delete", 500);
         return next(error);
@@ -144,7 +141,7 @@ const deleteGroupById = async (req, res, next) => {
         const error = new HttpError("Could not find any Group for delete", 204);
         return next(error);
     }
-    res.status(200).json({ success: "SYSS03" ,message: "Deleted Group:" });
+    res.status(200).json({ success: true ,message: "Deleted Group:" });
 };
 
 const updateGroupById = async (req, res, next) => {
@@ -169,10 +166,8 @@ const updateGroupById = async (req, res, next) => {
             alias: getAlias(req.body.name)
         };
         let Groups;
-        Groups = await Group.update(updatedGroup, {
-            where: { alias: GroupAlias },
-        });
-        res.status(200).json({ success: "SYSS04" ,Groups: updatedGroup });
+        Groups = await Group.updateOne(updatedGroup, { alias: GroupAlias });
+        res.status(200).json({ success: true ,Groups: updatedGroup });
     } else {
         const updatedGroup = {
             name: req.body.name,
@@ -181,10 +176,8 @@ const updateGroupById = async (req, res, next) => {
             alias: getAlias(req.body.name)
         };
         let Groups;
-        Groups = await Group.update(updatedGroup, {
-            where: { alias: GroupAlias },
-        });
-        res.status(200).json({success: "SYSS04" ,Groups: updatedGroup });
+        Groups = await Group.updateOne(updatedGroup, { alias: GroupAlias });
+        res.status(200).json({success: true ,Groups: updatedGroup });
     }
 };
 
