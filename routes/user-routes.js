@@ -10,7 +10,11 @@ router.post('/signup', usersControllers.register);
 
 router.post('/login', usersControllers.login);  
 
+
+router.use(isAuth);
+
 router.get('/myaccount', usersControllers.getMyUser);
+
 router.patch(
 '/myaccount',
 fileUpload.single('avatarPath'),

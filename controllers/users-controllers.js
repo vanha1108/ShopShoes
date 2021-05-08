@@ -162,10 +162,9 @@ const login = async(req,res,next) => {
 
 const getMyUser = async (req, res, next) => {
     let users;
+    console.log(req);
     try{
-        users = await User.findOne({
-            where: { email: req.userData.email}
-        });
+        users = await User.findOne({ email: req.userData.email});
     } catch (err) {
         const error = new HttpError('You are not log in. Pls login', 500);
         return next(error);
@@ -184,9 +183,7 @@ const updateMyUser = async(req, res, next) => {
     let userCurrent =  req.userData.email;
     console.log(req.body.birthday)
     try{
-        users = await User.findOne({
-            where: { email: userCurrent}
-        });
+        users = await User.findOne({ email: userCurrent});
     } catch (err) {
         const error = new HttpError('You are not log in. Pls login', 500);
         return next(error);
@@ -217,9 +214,7 @@ const updateMyUser = async(req, res, next) => {
     
         let userUpdate;
         try{
-            userUpdate = await User.update(userInfo, {
-                where: { email: userCurrent}
-            });
+            userUpdate = await User.updateOne(userInfo, { email: userCurrent});
             console.log(userInfo);
             console.log(userUpdate);
         } catch (err)
@@ -266,9 +261,6 @@ const updateMyUser = async(req, res, next) => {
     }
         res.status(200).json({userUpdate});
     }
-    
-
-    
 }
 
 const lockUser = async(req, res, next) => {
@@ -280,9 +272,7 @@ const lockUser = async(req, res, next) => {
 
     let users;
     try{
-        users = await User.update(userLock,{
-            where: { id: id } 
-        });
+        users = await User.updateOne(userLock,{ id: id });
         console.log(users);
     }
     catch (err) {
