@@ -10,9 +10,6 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const {getToken} = require('../middleware/check-auth');
 
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op; 
-
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -25,9 +22,9 @@ const transporter = nodemailer.createTransport({
 
 
 const getUser = async (req, res, next) => {
-    let users;
+    let users
     try{
-        users = await User.findAll();
+        users = await User.find();
     } catch (err) {
         const error = new HttpError('Something went wrong, coud not find any users', 500);
         return next(error);
@@ -162,7 +159,7 @@ const login = async(req,res,next) => {
 
 const getMyUser = async (req, res, next) => {
     let users;
-    console.log(req);
+    console.log(req.userData);
     try{
         users = await User.findOne({ email: req.userData.email});
     } catch (err) {
