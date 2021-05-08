@@ -109,7 +109,7 @@ const register = async(req, res, next) =>{
         return next(error)
     } 
     res.status(200).json({
-        email: createdUser.email, isAdmin: createdUser.isAdmin, token:token
+        email: createdUser.email, isAdmin: createdUser.isAdmin
     });
 };
 
