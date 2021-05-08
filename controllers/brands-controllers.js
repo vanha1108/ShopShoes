@@ -7,7 +7,7 @@ const { getAlias, decodeAlias } = require("../middleware/utilities");
 const getAllBrand = async (req, res, next) => {
     let brands;
     try {
-        brands = await Brand.findAll();
+        brands = await Brand.find();
     } catch (err) {
         const error = new HttpError(
             "System goes wrong, coud not find any Brand",
