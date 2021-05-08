@@ -6,7 +6,6 @@ const router = express.Router();
 
 
 router.get('/', brandsControllers.getAllBrand );
-router.get('/getAlias/:alias', brandsControllers.getBrandByAlias);
 
 
 router.post(

@@ -11,9 +11,6 @@ var brandschema = new Schema(
     },
     imagePath: {
       type: String,
-    },
-    alias: {
-      type: String,
     }
   },
   { collection: "brand", timestamps: true }
