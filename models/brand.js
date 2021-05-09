@@ -3,13 +3,16 @@ var Schema = mongoose.Schema;
 
 var brandschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     name: {
       type: String,
     },
     summary: {
       type: String,
     },
-    imagePath: {
+    image: {
       type: String,
     }
   },

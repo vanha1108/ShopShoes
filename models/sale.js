@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var saleschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     name: {
       type: String,
     },

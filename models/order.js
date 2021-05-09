@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var orderschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     orderCode: {
       type: Number,
     },

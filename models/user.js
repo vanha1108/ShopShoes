@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var userschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     fullName: {
       type: String,
     },

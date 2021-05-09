@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var promotionschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     promotionCode: {
       type: String,
     },

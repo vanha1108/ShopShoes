@@ -1,28 +1,13 @@
 const express = require('express');
-const { check } = require('express-validator');
-const fileUpload = require('../middleware/file-upload');
-
 const groupsController = require('../controllers/groups-controllers');
-
 const router = express.Router();
 
 router.get('/', groupsController.getAllGroup );
 
+router.get('/:code', groupsController.getGroupByCode);
 
-router.get('/getAlias/:alias', groupsController.getGroupByAlias);
-router.get('/:groupId', groupsController.getGroupById);
+router.post('/', groupsController.createGroup );
 
-router.post(
-    '/',
-    fileUpload.single('imagePath'),
-    [   
-       check('name').not().isEmpty()
-    ],
-    groupsController.createGroup
- );
-
-router.delete('/:groupId', groupsController.deleteGroupById);
-
-
+router.delete('/:code', groupsController.deleteGroupByCode);
 
 module.exports = router;

@@ -1,184 +1,92 @@
-const HttpError = require('../error-handle/http-error');  //dùng để giải quyết error
-// const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
 const Group = require('../models/group');
-const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-const Sequelize = require('sequelize');
-const { getAlias, decodeAlias } = require("../middleware/utilities");
 
 const getAllGroup = async (req, res, next) => {
     let Groups;
     try {
-        Groups = await Group.findAll();
+        Groups = await Group.find();
     } catch (err) {
-        const error = new HttpError(
-            "System goes wrong, coud not find any Group",
-            500
-        );
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any group!"});
     }
     if (!Groups) {
-        const error = new HttpError("Could not find any Group", 204);
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any Group!"});
     }
-    res.status(200).json({
-        success: true,
-        Groups,
-    });
+    return res.status(200).json({code: 200, success: true, Groups});
 };
 
-//
 const createGroup = async (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        const error = new HttpError("Invalid Input! Pls check your data", 400);
-        return next(errors);
-    }
-    let image;
-    if (typeof req.file !== "undefined") {
-        image = req.file.path;
-    } else image = null;
+    const {name, summary} = req.body;
 
-    if (image === null) {
-        const createdGroup = {
-            name: req.body.name,
-            summary: req.body.summary,
-            alias: getAlias(req.body.name)
-        };
-        let Groups;
-        Groups = await Group.create(createdGroup);
-        res.status(201).json({
-            success: true,
-            Groups,
-        });
-    } else {
-        const createdGroup = {
-            name: req.body.name,
-            imagePath: req.file.path,
-            summary: req.body.summary,
-            alias: getAlias(req.body.name)
-        };
-        let Groups;
-        Groups = await Group.create(createdGroup);
-        res.status(201).json({
-            success: true,
-            Groups,
-        });
+    if (name == "") {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
+
+    let group = await Group.findOne({name});
+    if(group != null) {
+        return res.status(409).json({code: 409, success: false, message: "Name of group is already exist!"});
+    }
+
+    var code = Util.getCode();
+    while(!Group.findOne({code})) {
+        code = Util.getCode();
+    };
+    const createdGroup = {
+        name: name,
+        summary: summary,
+    };
+
+    let groups = await Group.create(createdGroup);
+    return res.status(200).json({ code: 200, success: true, groups })
 };
 
-//
-const getGroupByAlias = async (req, res, next) => {
-    const GroupAlias = req.params.alias;
+const getGroupByCode = async (req, res, next) => {
+    const code = req.params.code;
     let Groups;
-    try {
-        Groups = await Group.findOne({ alias: GroupAlias });
-    } catch (err) {
-        const error = new HttpError(
-            "System went wrong, coud not find any Group",
-            500
-        );
 
-        return next(error);
+    try {
+        Groups = await Group.findOne({code});
+    } catch (err) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any group!"});
     }
 
     if (!Groups) {
-        const error = new HttpError("Could not find any Group", 204);
-
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any Group!"})
     }
-    res.status(200).json({
-        success: true,
-        Groups,
-    });
+    return res.status(200).json({code: 200, success: true, Groups});
 };
 
-//
-const getGroupById = async (req, res, next) => {
-    const groupId = req.params.groupId;
+const deleteGroupByCode = async (req, res, next) => {
+    const code = req.params.code;
     let Groups;
     try {
-        Groups = await Group.findById(groupId);
+        Groups = await Group.findOneAndDelete({ code });
     } catch (err) {
-        const error = new HttpError(
-            "System went wrong, coud not find any Group",
-            500
-        );
-        let errReturn;
-        errReturn = {
-            fail: "SYSF01",
-            error,
-        };
-        return next(errReturn);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not delete any group!"});
     }
 
     if (!Groups) {
-        const error = new HttpError("Could not find any Group", 204);
-        let errReturn;
-        errReturn = {
-            fail: "USERF01",
-            error,
-        };
-        return next(errReturn);
+        return res.status(404).json({code: 404, success: false, message: "Coud not find any group!"});
     }
-    res.status(200).json({
-        success: true,
-        Groups,
-    });
+    return res.status(200).json({ code: 200, success: true , message: "Deleted Group:" });
 };
 
-//
-const deleteGroupById = async (req, res, next) => {
-    const groupId = req.params.groupId;
-    let Groups;
-    try {
-        Groups = await Group.findByIdAndDelete({ id: groupId });
-    } catch (err) {
-        const error = new HttpError("System went wrong, can not delete", 500);
-        return next(error);
+const updateGroupByCode = async (req, res, next) => {
+    const code = req.params.code;
+    const {name, summary} = req.body;
+
+    if (name == "") {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
 
-    if (!Groups) {
-        const error = new HttpError("Could not find any Group for delete", 204);
-        return next(error);
+    let group = await Group.findOne({name});
+    if(group != null) {
+        return res.status(409).json({code: 409, success: false, message: "Name of group is already exist!"});
     }
-    res.status(200).json({ success: true ,message: "Deleted Group:" });
+
+    group.name = name;
+    group.summary = summary;
+
+    await Brand.updateOne(group, { code: code });
+    return res.status(200).json({ code: 200, success: true , group: group });
 };
 
-const updateGroupById = async (req, res, next) => {
-    const groupId = req.params.groupId;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        console.log(errors);
-        const error = new HttpError("Invalid Input! Pls check your data", 400);
-
-        return next(error);
-    }
-    //Kiểm tra có chèn ảnh ko
-    let image;
-    if (typeof req.file !== "undefined") {
-        image = req.file.path;
-    } else image = null;
-
-    if (image === null) {
-        const updatedGroup = {
-            name: req.body.name,
-            summary: req.body.summary,
-            alias: getAlias(req.body.name)
-        };
-        let Groups;
-        Groups = await Group.updateOne(updatedGroup, { alias: GroupAlias });
-        res.status(200).json({ success: true ,Groups: updatedGroup });
-    } else {
-        const updatedGroup = {
-            name: req.body.name,
-            imagePath: req.file.path,
-            summary: req.body.summary,
-            alias: getAlias(req.body.name)
-        };
-        let Groups;
-        Groups = await Group.updateOne(updatedGroup, { alias: GroupAlias });
-        res.status(200).json({success: true ,Groups: updatedGroup });
-    }
-};
-
-module.exports = { getAllGroup, getGroupByAlias, getGroupById, createGroup, updateGroupById, deleteGroupById};
+module.exports = { getAllGroup, getGroupByCode, createGroup, updateGroupByCode, deleteGroupByCode};

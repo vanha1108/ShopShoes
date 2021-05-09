@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var categoryschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     name: {
       type: String,
     },
@@ -12,8 +15,8 @@ var categoryschema = new Schema(
     imagePath: {
       type: String,
     },
-    alias: {
-      type: String,
+    groupCode: {
+      type: String
     }
   },
   { collection: "category", timestamps: true }

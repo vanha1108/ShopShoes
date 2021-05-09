@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var productsizeschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     productCount: {
       type: Number,
     },

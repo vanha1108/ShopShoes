@@ -9,8 +9,6 @@ const Order = require('../models/order');
 const OrderDetail = require('../models/orderdetail');
 const ProductSize = require('../models/productsize');
 const Size = require('../models/size');
-const { create_payment, execute_payment } = require('../middleware/paypal');
-const paypal = require('paypal-rest-sdk');
 
 const getAllOrder = async (req, res, next) => {
     let orders;

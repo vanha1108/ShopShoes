@@ -1,233 +1,101 @@
-const HttpError = require('../error-handle/http-error');  //dùng để giải quyết error
-// const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
 const Category = require('../models/category');
-const Group = require('../models/group');
-const { getAlias, decodeAlias } = require("../middleware/utilities");
-const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
-const Sequelize = require('sequelize');
 
 
 const getAllCategory = async (req, res, next) => {
     let categories;
     try{
-        categories = await Category.findAll(
-            {
-                include: [
-                    {
-                        model: models.Group
-                    }
-                ] 
-            }
-        );
-        
+        categories = await Category.findAll();
     } catch (err) {
-        const error = new HttpError('Something went wrong, coud not find any category', 500);
-        let errReturn;
-        errReturn = {
-            fail: "SYSFF",
-            error,
-        };
-        return next(errReturn);
+        return res.status(500).json({code: 500, success: false, message: "Something went wrong, coud not find any category"});
     }
-    console.log(categories)
-    if(!categories)
-    {
-        const error =  new HttpError('Could not find any category', 404);
-        let errReturn;
-        errReturn = {
-            fail: "USERNR",
-            error,
-        };
-        return next(errReturn);
+  
+    if(!categories) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any category"});
     }
-    res.status(200).json({
-        success: true,
-        categories,
-    });
-
+    return res.status(200).json({code: 200, success: true, categories});
 };
 
 const createCategory = async (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
-        console.log(errors);
-        const error =  new HttpError('Invalid Input! Pls check your data', 400);
-        let errReturn;
-        errReturn = {
-            fail: "SYSF02",
-            error,
-        };
-        return next(errReturn);
+    const {name, summary, groupCode} = req.body;
+
+    if (name == "" || groupCode == "") {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
-    let image;
-    if(typeof (req.file) !== "undefined")
-    {
-        image = req.file.path;
-        
+
+    let category = await Category.findOne({name});
+    if (category != null ) {
+        return res.status(409).json({code: 409, success: false, message: "Name of category is already exist!"});
     }
-    else image = null;
-    if(image === null)
-    {
-        const createdCategory = {
-            name: req.body.name,
-            summary: req.body.summary,
-            groupId: req.body.groupId,
-            alias: getAlias(req.body.name)
-          };
-        let categories
-        categories = await Category.create(createdCategory);
-        res.status(201).json({
-            success: true,
-            categories,
-        });
-    }
-    else 
-    {
-        const createdCategory = {
-            name: req.body.name,
-            imagePath: image,
-            description: req.body.description,
-            groupId: req.body.groupId,
-            alias: getAlias(req.body.name)
-          };
-        let categories
-        categories = await Category.create(createdCategory);
-        res.status(201).json({
-            success: true,
-            categories,
-        });
-    }
+
+    var code = Util.getCode();
+    while(!Category.findOne({code})) {
+        code = Util.getCode();
+    };
+
+    const createdCategory = {
+        code: code,
+        name: name,
+        summary: summary,
+        groupCode: groupCode,
+    };
+
+    let categories = await Category.create(createdCategory);
+    return res.status(200).json({ code: 200, success: true, categories });
 };
 
-const getCategoryByAlias = async (req, res, next) => {
-    const alias = req.params.alias;
+const getCategoryByCode = async (req, res, next) => {
+    const code = req.params.code;
     let categories;
+
     try{
-        categories = await Category.findOne({ alias: alias });
+        categories = await Category.findOne({code});
     } catch (err) {
-        const error = new HttpError('Something went wrong, coud not find any category', 500);
-        let errReturn;
-        errReturn = {
-            fail: "SYSF01",
-            error,
-        };
-        return next(errReturn);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any Category!"});
     }
 
     if(!categories)
     {
-        const error =  new HttpError('Could not find any category', 404);
-        let errReturn;
-        errReturn = {
-            fail: "USERF01",
-            error,
-        };
-        return next(errReturn);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any category!"});
     }
-    res.status(200).json({
-        success: true,
-        categories,
-    });
-
+    return res.status(200).json({ code: 200, success: true, categories});
 };
 
-const getCategoryById = async (req, res, next) => {
-    const cateId = req.params.cateId;
+const deleteCategoryByCode = async (req, res, next) => {
+    const code = req.params.code;
     let categories;
     try{
-        categories = await Category.findById(cateId);
-        
-    } catch (err) {
-        const error = new HttpError('Something went wrong, coud not find any category', 500);
-        let errReturn;
-        errReturn = {
-            fail: "SYSF01",
-            error,
-        };
-        return next(errReturn);
-    }
-    console.log(categories)
-    if(!categories)
-    {
-        const error =  new HttpError('Could not find any category', 404);
-        let errReturn;
-        errReturn = {
-            fail: "USERF01",
-            error,
-        };
-    }
-    res.status(200).json({
-        success: true,
-        categories,
-    });
-
-};
-
-const deleteCategoryById = async (req, res, next) => {
-    const cateId = req.params.cateId;
-    let categories;
-    try{
-        categories = await Category.findByIdAndDelete({id: cateId});
+        categories = await Category.findOneAndDelete({code});
     }
     catch (err) {
-        const error = new HttpError('Something went wrong, can not delete', 500);
-
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any Category!"});
     }
-    if(!categories)
-    {
-        const error =  new HttpError('Could not find any category', 404);
-        return next(error);
+    if(!categories) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any category!"});
     }
-    res.status(200).json({success: true,message: 'Deleted category:'});
+    return res.status(200).json({success: true,message: 'Deleted category:'});
     
 }
 
-const updateCategoryById = async (req, res, next) => {
-    const cateId = req.params.cateId;
-    const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
-        console.log(errors);
-        const error =  new HttpError('Invalid Input! Pls check your data', 400);
-
-        return next(error);
+const updateCategoryByCode = async (req, res, next) => {
+    const code = req.params.code;
+    const {name, summary, image, groupCode} = req.body;
+     
+    if (name == "" || groupCode == "") {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
 
-    let image;
-    if(typeof (req.file) !== "undefined")
-    {
-        image = req.file.path;
-        
+    var updatedCategory = await Category.findOne({code});
+    if (updatedCategory == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any category!"});
     }
-    else image = null;
 
-    if(image === null)
-    {
-        const updatedCategory = {
-            name: req.body.name,
-            description: req.body.description,
-            groupId: req.body.groupId,
-            alias: getAlias(req.body.name)
-          };
-        let categories
-        categories = await Category.updateOne(updatedCategory,{id: cateId});
-        res.status(200).json({success: true,categories: updatedCategory});
-    }
-    else 
-    {
-        const updatedCategory = {
-            name: req.body.name,
-            imagePath: image,
-            description: req.body.description,
-            alias: getAlias(req.body.name)
-          };
-          console.log(req.file);
-        let categories
-        categories = await Category.updateOne(updatedCategory, {alias: alias});
-        res.status(200).json({success: true,categories: updatedCategory});
-    }
+    updatedCategory.name = name;
+    updatedCategory.summary = summary;
+    updatedCategory.image = image;
+    updatedCategory.groupCode = groupCode;
+
+    await Category.updateOne(updatedCategory, { code: code});
+    return res.status(200).json({ code: 200, success: true , category: updatedCategory });
 }
 
-module.exports = { getAllCategory, getCategoryById, getCategoryByAlias, createCategory, deleteCategoryById, updateCategoryById};
+module.exports = { getAllCategory, getCategoryByCode, createCategory, deleteCategoryByCode, updateCategoryByCode};

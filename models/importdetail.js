@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var importdetailschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     amount: {
       type: Number,
     },

@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var importschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     importCode: {
       type: String,
     },

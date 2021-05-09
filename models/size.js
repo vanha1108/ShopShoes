@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var sizeschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     sizeName: {
       type: String,
     },

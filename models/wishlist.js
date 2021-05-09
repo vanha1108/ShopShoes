@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var wishlistschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     summary: {
       type: String,
     }

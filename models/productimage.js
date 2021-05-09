@@ -3,6 +3,9 @@ var Schema = mongoose.Schema;
 
 var productimageschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     imagePath: {
       type: String,
     },

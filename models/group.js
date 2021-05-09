@@ -3,13 +3,13 @@ var Schema = mongoose.Schema;
 
 var groupschema = new Schema(
   {
+    code: {
+      type: String,
+    },
     name: {
       type: String,
     },
     summary: {
-      type: String,
-    },
-    alias: {
       type: String,
     }
   },
