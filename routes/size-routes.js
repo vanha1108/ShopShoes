@@ -1,29 +1,16 @@
 const express = require('express');
-const { check } = require('express-validator');
-
 const sizesControllers = require('../controllers/sizes-controller');
 
 const router = express.Router();
 
 router.get('/', sizesControllers.getAllSize);
-router.get('/getSizeByType/:sizeTypeName',sizesControllers.getAllSizeByType)
 
-router.post(
-    '/',
-    [   
-       check('sizeName').not().isEmpty()
-    ],
-    sizesControllers.createSize
-);
+router.get('/getSizeByType/:sizeType',sizesControllers.getAllSizeByType)
 
-router.delete('/:sizedId', sizesControllers.deleteSizeById);
+router.post('/', sizesControllers.createSize);
 
-router.patch(
-   '/:sizeId',
-   [
-      check('name').not().isEmpty()
-   ],
-   sizesControllers.updateSize
-);
+router.delete('/:code', sizesControllers.deleteSizeByCode);
+
+router.patch('/:code',sizesControllers.updateSize);
 
 module.exports = router;

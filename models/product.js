@@ -6,11 +6,11 @@ var productschema = new Schema(
     code: {
       type: String,
     },
-    name: {
+    brandCode: {
       type: String,
     },
-    productCode: {
-      type: Number,
+    name: {
+      type: String,
     },
     status: {
       type: String,
@@ -18,14 +18,14 @@ var productschema = new Schema(
     description: {
       type: String,
     },
-    alias: {
-        type: String,
-    },
     color: {
         type: String,
     },
-    imagePath: {
+    image: {
         type: String,
+    },
+    thumbnail: {
+      type: String,
     },
     promotion: {
         type: Number,

@@ -1,4 +1,5 @@
 const Group = require('../models/group');
+const Util = require('../utils/generateCode');
 
 const getAllGroup = async (req, res, next) => {
     let Groups;
@@ -30,6 +31,7 @@ const createGroup = async (req, res, next) => {
         code = Util.getCode();
     };
     const createdGroup = {
+        code: code,
         name: name,
         summary: summary,
     };

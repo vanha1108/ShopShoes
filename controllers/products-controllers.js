@@ -1,305 +1,143 @@
-const HttpError = require('../error-handle/http-error');  //dùng để giải quyết error
-// const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
-const {getAlias,decodeAlias} = require('../middleware/utilities')
 const Product = require('../models/product');
 const ProductSize = require('../models/productsize');
-const ProductImage = require('../models/productimage');
-const Group = require('../models/group');
-const Brand = require('../models/brand');
-const Category = require('../models/category');
+const Util = require('../utils/generateCode');
 const Size = require('../models/size');
-const { validationResult } = require('express-validator'); //lấy dc lỗi từ body validate
 
 const getAllProduct = async (req, res, next) => {
     let products;
     try {
-        products = await Product.findAll(
-            {
-                include: [
-                    {
-                        model: Brand,                     
-                    },
-                    {
-                        model: Category,
-                        include:[{
-                            model: Group
-                        }]
-                    },
-                    {
-                        model: ProductSize,
-                        include:[{
-                            model: Size
-                        }]
-                    },
-                    {
-                        model: ProductImage
-                    }
-                ]
-            }
-        );
+        products = await Product.findAll();
     } catch (err) {
-        const error = new HttpError('Something went wrong, coud not find any product', 500);
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any product!"});
     }
 
     if(!products)
     {
-        const error =  new HttpError('Could not find any category', 404);
-       
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any product!"});
     }
-    res.status(200).json({success: true ,products});
+    return res.status(200).json({success: true ,products});
 }
 
-const getProductById = async (req, res, next) => {
-    const productId = req.params.productId;
+const getProductByCode = async (req, res, next) => {
+    const code = req.params.code;
     let product;
     try {
-        product = await Product.findOne({ id: productId });
+        product = await Product.findOne({ code });
     }
     catch (err) {
-        const error = new HttpError('Something went wrong, coud not find any product', 500);
-        
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any product!"});
     }
     if (!product) {
-        const error = new HttpError("Could not find any product", 204);
-       
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any product!"});
     }
-    res.status(200).json({success: true, product});
-}
-
-const getProductImageByProductId = async (req,res,next) => {
-    const productId = req.params.productId;
-    let productImage;
-    try {
-        productImage = await ProductImage.findAll({ productId: productId });
-    } catch (err)
-    {
-        const error = new HttpError('Something went wrong, coud not find any image', 500);
-      
-        return next(error);
-    }
-    if (!productImage) {
-        const error = new HttpError("Could not find any image", 204);
-       
-        return next(error);
-    }
-    res.status(200).json({success: true, productImage});
-}
-
-const getProductByAlias = async (req, res, next) => {
-    const productAlias = req.params.productAlias;
-    let product;
-    try {
-        product = await Product.findOne({ alias:  productAlias });
-    }
-    catch (err) {
-        const error = new HttpError('Something went wrong, coud not find any product', 500);
-        
-        return next(error);
-    }
-
-    if (!product) {
-        const error = new HttpError("Could not find any product", 204);
-       
-        return next(error);
-    }
-    res.status(200).json({success: true, product});
+    return res.status(200).json({success: true, product});
 }
 
 const createProduct = async (req, res, next) => {
-    const errors = validationResult(req);
-    if(!errors.isEmpty())
-    {
-        console.log(errors);
-        const error =  new HttpError('Invalid Input! Pls check your data', 400);
-        return next(error);
+    const {name, categoryCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
+
+    if (name == "" || categoryCode == "" || color == "" || importPrice == null) {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
-    let image;
-    if(typeof (req.file) !== "undefined")
-    {
-        image = req.file.path; 
+
+    let product = await Product.findOne({name});
+    if(product != null) {
+        return res.status(409).json({code: 409, success: false, message: "Name of product is already exist!"});
     }
-    else image = null;
-    if(image === null)
-    {
-        const createdProduct = {
-            name: req.body.name,
-            productCode: req.body.productCode,
-            status: "Available",
-            description: req.body.description,
-            color: req.body.color,
-            sellPrice: req.body.sellPrice,
-            importPrice: req.body.importPrice,
-            alias: getAlias(req.body.name),
-            brandId: req.body.brandId,
-            categoryId: req.body.categoryId,
-            promotion: req.body.promotion
-          };
-        let products;
-        products = await Product.create(createdProduct);
-        res.status(200).json({ success: true, products});
-    }
-    else{
-        const createdProduct = {
-            name: req.body.name,
-            productCode: req.body.productCode,
-            imagePath: image,
-            status: "Available",
-            description: req.body.description,
-            color: req.body.color,
-            alias: getAlias(req.body.name),
-            brandId: req.body.brandId,
-            categoryId: req.body.categoryId,
-            promotion: req.body.promotion
-          };
-        let products;
-        products = await Product.create(createdProduct);
-        res.status(200).json({ success: true, products});
-    } 
+
+    var code = Util.getCode();
+    while(!Product.findOne({code})) {
+        code = Util.getCode();
+    };
+    
+    const createdProduct = {
+        code: code,
+        name: name,
+        status: "Available",
+        image: image,
+        thumbnail: thumbnail,
+        description: description,
+        color: color,
+        sellPrice: sellPrice,
+        importPrice: importPrice,
+        brandId: brandId,
+        categoryCode: categoryCode,
+        promotion: promotion
+    };
+    let products = await Product.create(createdProduct);
+    return res.status(200).json({ code: 200, success: true, products});
 }
 
-const updateProductById = async (req, res, next) => {
-    const productId = req.params.productId;
-    const errors = validationResult(req);
+const updateProductByCode = async (req, res, next) => {
+    const code = req.params.code;
+    const {name, categoryCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
     
-    if (!errors.isEmpty()) {
-        console.log(errors);
-        const error = new HttpError("Invalid Input! Pls check your data", 400);
-        return next(error)
+    if (name == "" || categoryCode == "" || status == "" || color == "" || importPrice == null) {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
-    //Kiểm tra có chèn ảnh ko
-    let image;
-    // if (typeof req.file !== "undefined") {
-    //     image = req.file.path;
-    // } else image = null;
-    if(typeof (req.file) !== "undefined")
-    {
-        image = req.file.path;
-    }
-    else image = null;
 
-    if (image === null) {
-        const updatedProduct = {
-            name: req.body.name,
-            productCode: req.body.productCode,
-            status: req.body.status,
-            description: req.body.description,
-            color: req.body.color,
-            // alias: getAlias(req.body.name),
-            brandId: req.body.brandId,
-            categoryId: req.body.categoryId,
-            sellPrice: req.body.sellPrice,
-            importPrice: req.body.importPrice,
-            promotion: req.body.promotion
-        };
-        let products;
-        products = await Product.updateOne(updatedProduct, { id: productId });
-        res.status(200).json({ success: true ,products: updatedProduct });
-    } else {
-        const updatedProduct = {
-            name: req.body.name,
-            productCode: req.body.productCode,
-            imagePath: image,
-            status: req.body.status,
-            description: req.body.description,
-            color: req.body.color,
-            // alias: getAlias(req.body.name),
-            brandId: req.body.brandId,
-            categoryId: req.body.categoryId,
-            sellPrice: req.body.sellPrice,
-            importPrice: req.body.importPrice,
-            promotion: req.body.promotion
-        };
-        let products;
-        products = await Product.updateOne(updatedProduct, { id: productId });
-        res.status(200).json({ success: true ,products: updatedProduct });
+    var product = await Product.findOne({code});
+    if (product == null ) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any product!"});
     }
+
+    let checkName = await Product.findOne({name});
+    if(checkName != null) {
+        return res.status(409).json({code: 409, success: false, message: "Name of product is already exist!"});
+    }
+
+    product.name = name;
+    product.categoryCode = categoryCode;
+    product.description = description;
+    product.image = image;
+    product.thumbnail = thumbnail;
+    product.importPrice = importPrice;
+    product.sellPrice = sellPrice;
+    product.color = color;
+    product.promotion = promotion;
+
+    await Product.updateOne(product, { code: code });
+    return res.status(200).json({ code: 200, success: true , product });
 };
 
-
-//
 const createProductSize = async (req, res, next) => {
-    let products;
+    const {productCode, sizeCode} = req.body;
+    let product;
+    let size;
+
     try{
-        products = await Product.findById(req.body.productId);
+        product = await Product.findOne({code: productCode});
     } catch (err) {
-        const error = new HttpError('Could not find any Product', 404);
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any product!"});
     }
+
+    try{
+        size = await Size.findOne({code: sizeCode});
+    } catch (err) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any size!"});
+    }
+
+    if (product == null ) {
+        return res.status(404).json({code: 404, success: false, message: "Coud not find any product!"});
+    }
+
+    if (size == null) {
+        return res.status(404).json({code: 404, success: false, message: "Coud not find any size!"});
+    }
+
+    var code = Util.getCode();
+    while(!Product.findOne({code})) {
+        code = Util.getCode();
+    };
+
     const createdProductSize = {
-        productCount: req.body.productCount,
-        productId: req.body.productId,
-        sizeId: req.body.sizeId
+        code: code,
+        productCode: productCode,
+        sizeCode: sizeCode
     }
-    let productSize;
-    productSize = await ProductSize.create(createdProductSize);
-    res.status(200).json({productSize});
+    let productSize = await ProductSize.create(createdProductSize);
+    res.status(200).json({ code: 200, success: true, productSize});
 } 
 
-//
-const createProductImage = async (req, res, next) => {
-    const createdProductImage = {
-        productId: req.body.productId,
-        imagePath: req.file.path
-    }
-    let productImage;
-    productImage = await ProductImage.create(createdProductImage);
-    res.status(200).json({productImage});
-}
 
-const updateProductImage = async (req, res, next) => {
-    const productImageId = req.params.productImageId;
-    const updatedImage = {
-        imagePath: req.file.path
-      };
-    let productImage;
-    productImage = await ProductImage.updateOne(updatedImage, {id: productImageId});
-    res.status(200).json({success: true, ProductImage: updatedImage});
-}
-
-const deleteProductImage = async (req, res, next) => {
-    const productImageId = req.params.productImageId;
-    let productImage;
-    try{
-        productImage = await ProductImage.findByIdAndDelete({id: productImageId});
-    }
-    catch (err) {
-        const error = new HttpError('Something went wrong, can not delete', 500);
-
-        return next(error);
-    }
-    if(!productImage)
-    {
-        const error =  new HttpError('Could not find any ProductImage', 404);
-        return next(error);
-    }
-    res.status(200).json({success: true, message: 'Deleted ProductImage:'});
-}
-
-/* const getProductSizeByProductAndSizeId = async (req, res, next) => {
-    let productSize;
-    try{
-        productSize = await ProductSize.findOne(
-            {
-                where: {
-                    productId: req.body.productId,
-                    sizeId: req.body.sizeId
-                },
-            }
-        );
-    } catch (err) {
-        const error = new HttpError('Could not find any ProductSize', 404);
-        return next(error);
-    }
-    res.status(200).json({success: "SYSS01",productSize});
-}
- */
-
-
-module.exports = {
-    getAllProduct, getProductById, createProduct, createProductSize, updateProductById, 
-    getProductByAlias, createProductImage, updateProductImage, deleteProductImage, getProductImageByProductId,
-};
+module.exports = { getAllProduct, getProductByCode, createProduct, createProductSize, updateProductByCode };

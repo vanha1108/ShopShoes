@@ -6,9 +6,12 @@ var productsizeschema = new Schema(
     code: {
       type: String,
     },
-    productCount: {
-      type: Number,
+    productCode: {
+      type: String,
     },
+    sizeCode: {
+      type: String,
+    }
   },
   { collection: "productsize", timestamps: true }
 );
