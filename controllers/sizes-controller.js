@@ -22,7 +22,7 @@ const getAllSizeByType = async (req, res, next) => {
     let listSize;
 
     try{
-        listSize = await Size.findOne({ sizeType });
+        listSize = await Size.find({ sizeType });
     }
     catch(err) {
         return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any size!"});
