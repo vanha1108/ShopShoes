@@ -5,7 +5,7 @@ const Util = require('../utils/generateCode');
 const getAllCategory = async (req, res, next) => {
     let categories;
     try{
-        categories = await Category.findAll();
+        categories = await Category.find();
     } catch (err) {
         return res.status(500).json({code: 500, success: false, message: "Something went wrong, coud not find any category"});
     }

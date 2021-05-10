@@ -6,7 +6,7 @@ const Size = require('../models/size');
 const getAllProduct = async (req, res, next) => {
     let products;
     try {
-        products = await Product.findAll();
+        products = await Product.find();
     } catch (err) {
         return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any product!"});
     }
