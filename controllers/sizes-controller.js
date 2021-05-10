@@ -1,4 +1,5 @@
 const Size = require('../models/size');
+const Util = require('../utils/generateCode');
 
 const getAllSize = async (req, res, next) => {
     let sizes;
