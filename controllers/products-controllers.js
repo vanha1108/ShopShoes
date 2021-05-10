@@ -61,7 +61,7 @@ const createProduct = async (req, res, next) => {
         sellPrice: sellPrice,
         importPrice: importPrice,
         categoryCode: categoryCode,
-        brandCode = brandCode,
+        brandCode: brandCode,
         promotion: promotion
     };
     let products = await Product.create(createdProduct);
