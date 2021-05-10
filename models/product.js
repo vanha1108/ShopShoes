@@ -9,6 +9,9 @@ var productschema = new Schema(
     brandCode: {
       type: String,
     },
+    categoryCode: {
+      type: String,
+    },
     name: {
       type: String,
     },

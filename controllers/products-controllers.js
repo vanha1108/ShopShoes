@@ -34,9 +34,9 @@ const getProductByCode = async (req, res, next) => {
 }
 
 const createProduct = async (req, res, next) => {
-    const {name, categoryCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
+    const {name, categoryCode, brandCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
 
-    if (name == "" || categoryCode == "" || color == "" || importPrice == null) {
+    if (name == "" || categoryCode == "" || color == "" || importPrice == null || brandCode == "") {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
 
@@ -60,8 +60,8 @@ const createProduct = async (req, res, next) => {
         color: color,
         sellPrice: sellPrice,
         importPrice: importPrice,
-        brandId: brandId,
         categoryCode: categoryCode,
+        brandCode = brandCode,
         promotion: promotion
     };
     let products = await Product.create(createdProduct);
@@ -70,9 +70,9 @@ const createProduct = async (req, res, next) => {
 
 const updateProductByCode = async (req, res, next) => {
     const code = req.params.code;
-    const {name, categoryCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
+    const {name, categoryCode, brandCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
     
-    if (name == "" || categoryCode == "" || status == "" || color == "" || importPrice == null) {
+    if (name == "" || categoryCode == "" || status == "" || color == "" || importPrice == null || brandCode == "") {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
 
@@ -88,6 +88,7 @@ const updateProductByCode = async (req, res, next) => {
 
     product.name = name;
     product.categoryCode = categoryCode;
+    product.brandCode =brandCode;
     product.description = description;
     product.image = image;
     product.thumbnail = thumbnail;
@@ -138,6 +139,5 @@ const createProductSize = async (req, res, next) => {
     let productSize = await ProductSize.create(createdProductSize);
     res.status(200).json({ code: 200, success: true, productSize});
 } 
-
 
 module.exports = { getAllProduct, getProductByCode, createProduct, createProductSize, updateProductByCode };
