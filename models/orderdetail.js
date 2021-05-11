@@ -6,6 +6,12 @@ var orderdetailschema = new Schema(
     code: {
       type: String,
     },
+    productSizeCode: {
+      type: String,
+    },
+    orderCode: {
+      type: String,
+    },
     unitAmount: {
       type: Number,
     },

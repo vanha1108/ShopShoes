@@ -6,10 +6,7 @@ var promotionschema = new Schema(
     code: {
       type: String,
     },
-    promotionCode: {
-      type: String,
-    },
-    promotionValue: {
+    value: {
       type: Number,
     },
     startDate: {

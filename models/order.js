@@ -6,8 +6,14 @@ var orderschema = new Schema(
     code: {
       type: String,
     },
-    orderCode: {
-      type: Number,
+    userCode: {
+      type: String,
+    },
+    promotionCode: {
+      type: String,
+    },
+    orderDetailCode: {
+      type: String,
     },
     fullName: {
       type: String,
@@ -23,10 +29,7 @@ var orderschema = new Schema(
     },
     totalPrice: {
         type: Number,
-    },
-    promotionCode: {
-        type: String,
-    },
+    }, 
     payment: {
         type: String,
     },

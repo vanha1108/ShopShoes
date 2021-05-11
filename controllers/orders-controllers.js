@@ -1,5 +1,3 @@
-const HttpError = require('../error-handle/http-error');  //dùng để giải quyết error
-// const models = require('../models'); //vì đang trong controllers nên phải ra ngoài thêm 1 chấm mới thấy đc models
 const Category = require('../models/category');
 const Brand = require('../models/brand');
 const Product = require('../models/product');
@@ -13,142 +11,115 @@ const Size = require('../models/size');
 const getAllOrder = async (req, res, next) => {
     let orders;
     try {
-        orders = await Order.findAll(
-            {
-                include: [
-                    {
-                        model: OrderDetail,
-                        include: [
-                            {
-                                model: ProductSize,
-                                include: [
-                                    {
-                                        model: Product,
-                                        include: [
-                                            { model: Brand }
-                                        ]
-                                    },
-                                    {
-                                        model: Size
-                                    }
-                                ]
-                            }
-                        ]
-                    },
-                ]
-            }
-        );
+        orders = await Order.find();
     } catch (err) {
-        const error = new HttpError(
-            "System goes wrong, coud not find any Import",
-            500
-        );
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any order!"});
     }
     if (!orders) {
-        const error = new HttpError("Could not find any Import", 204);
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any order!"});
     }
-    res.status(200).json({
-        success: true,
-        orders
-    });
+    return res.status(200).json({ code: 200, success: true, orders });
 }
 
 const addOrder = async (req, res, next) => {
+    const {fullName, address, promotionCode, totalPrice, phone, payment} = req.body;
+
     let users;
     let userCurrent = req.userData.email;
 
     try {
         users = await User.findOne({ email: userCurrent });
     } catch (err) {
-        const error = new HttpError('You are not log in. Pls login', 401);
-        return next(error);
+        return res.status(401).json({code: 401, success: false, message: "You are not log in. Pls login!"});
     }
 
     if (!users) {
-        const error = new HttpError('Could not find any users', 404);
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any order!"});
     }
+
+    var code = Util.getCode();
+    while(!Order.findOne({code})) {
+        code = Util.getCode();
+    };
+
     const orderCreated = {
-        orderCode: randomStringCodeImport(),
-        address: req.body.address,
-        promotionCode: req.body.promotion,
-        total: req.body.total,
+        code: code,
+        address: address,
+        promotionCode: promotionCode,
+        totalPrice: totalPrice,
         status: 1,          //trạng thái 1 (Đã đặt hàng)
-        userId: users.id,
-        fullName: req.body.fullName,
-        phone: req.body.phone,
-        address: req.body.address,
-        totalPrice: req.body.totalPrice,
-        payment: req.body.payment
+        userCode: users.code,
+        fullName: fullName,
+        phone: phone,
+        address: address,
+        totalPrice: totalPrice,
+        payment: payment
     }
-    let createOrder;
-    createOrder = await Order.create(orderCreated);
-    res.status(200).json({ createOrder });
+    let createOrder = await Order.create(orderCreated);
+    return res.status(200).json({ code: 200, success: true, createOrder });
 }
-const randomStringCodeImport = () => {
-    var charSet = '0123456789987654321001234567899876543210';  ///set chuỗi để có thể lấy ngẫu nhiên trong này bỏ vào kết quả
-    var randomString = '';
-    var len = 9;
-    for (var i = 0; i < len; i++) {
-        var randomPoz = Math.floor(Math.random() * charSet.length);
-        randomString += charSet.substring(randomPoz, randomPoz + 1);
-    }
-    return randomString;
-}
-const updateOrderById = async (req, res, next) => {
-    const orderId = req.params.orderId;
-    console.log(orderId)
-    const orderUpdated = {
-        address: req.body.address,
-        status: req.body.status,
-        fullName: req.body.fullName,
-        phone: req.body.phone,
-    }
-    let updateOrder;
-    updateOrder = await Order.updateOne(orderUpdated, { id: orderId });
+
+const updateOrderByCode = async (req, res, next) => {
+    const code = req.params.code;
+    const {fullName, address, phone, status} = req.body;
+
+    let order = await Order.findOne({code});
+    if(order == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any order!"});
+    } 
+
+    order.address = address;
+    order.status = status;
+    order.phone = phone;
+    order.fullName = fullName;
+
+    let updateOrder = await Order.updateOne(order, { code: code });
 
     if (req.body.status === 4)            //1: Đã đặt, 2: Đã Duyệt, 3:Đã Thanh Toán, 4: Đã Nhận Hàng
     {
-        let orderById;
-        orderById = await Order.findByPk(orderId);
+        let orderByCode = await Order.findOne({code});
 
-        let userChange;
         const userUpdated = {
-            score: orderById.totalPrice
+            totalPrice: orderByCode.totalPrice
         }
-        userChange = await User.updateOne(userUpdated, { id: orderById.userId });
+        await User.updateOne(userUpdated, { code: orderByCode.userCode });
     }
-    res.status(200).json({ updateOrder })
-
+    return res.status(200).json({code: 200, success: true, order });
 }
 
-const addOrderDetail = async (req, res, next) => {
-    let orderItem;
-    const orderDetails = {
-        orderId: req.body.orderId,
-        unitAmount: req.body.unitAmount,
-        unitPrice: req.body.unitPrice,
-        productSizeId: req.body.productSizeId
-    };
+// const addOrderDetail = async (req, res, next) => {
+//     const {unitAmount, unitPrice, productSizeCode, orderCode} = req.body;
+//     let orderItem;
 
-    try {
-        orderItem = await OrderDetail.create(orderDetails)
-    } catch (err) {
-        const error = new HttpError('There is system error. Pls try again', 500);
-        return next(error);
-    }
-    let findProductSize;
-    findProductSize = await ProductSize.findOne({ id: req.body.productSizeId });
+//     var code = Util.getCode();
+//     while(!OrderDetail.findOne({code})) {
+//         code = Util.getCode();
+//     };
 
-    let amountProductSize;
-    amountProductSize = findProductSize.productCount - req.body.unitAmount;
+//     const orderDetails = {
+//         code: code,
+//         productSizeCode: productSizeCode,
+//         orderCode: orderCode,
+//         unitAmount: unitAmount,
+//         unitPrice: unitPrice
+//     };
 
-    let updateProductSize;
-    updateProductSize = await ProductSize.updateOne({ productCount: amountProductSize }, { id: findProductSize.id });
-    res.status(200).json({ orderItem });
-}
+//     try {
+//         orderItem = await OrderDetail.create(orderDetails)
+//     } catch (err) {
+//         return res.status(500).json({code: 500, success: false, message: "System went wrong!"});
+//     }
+
+//     let findProductSize;
+//     findProductSize = await ProductSize.findOne({ code: productSizeCode });
+
+//     let amountProductSize;
+//     amountProductSize = findProductSize.productCount - req.body.unitAmount;
+
+//     let updateProductSize;
+//     updateProductSize = await ProductSize.updateOne({ productCount: amountProductSize }, { id: findProductSize.id });
+//     res.status(200).json({ orderItem });
+// }
 
 const returnDetail = async (req, res, next) => {
     const detailId = req.params.detailId;
@@ -299,4 +270,4 @@ const getOrderByUserID = async (req, res, next) => {
     res.status(200).json({orders})
 }
 
-module.exports = { getAllOrder, addOrder, addOrderDetail, updateOrderById, returnDetail, payment, success, cancel, getOrderByUserID };
+module.exports = { getAllOrder, addOrder, updateOrderByCode, returnDetail, payment, success, cancel, getOrderByUserID };

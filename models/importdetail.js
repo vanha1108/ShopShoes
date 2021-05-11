@@ -6,17 +6,17 @@ var importdetailschema = new Schema(
     code: {
       type: String,
     },
+    productSizeCode: {
+      type: String,
+    },
+    importDetailCode: {
+      type: String,
+    },
     amount: {
       type: Number,
     },
     importPrice: {
       type: Number,
-    },
-    imagePath: {
-      type: String,
-    },
-    alias: {
-      type: String,
     }
   },
   { collection: "importdetail", timestamps: true }
