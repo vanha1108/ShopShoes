@@ -17,11 +17,11 @@ router.use(isAuth);
 
 router.post('/addOrder', ordersControllers.addOrder );
  
-// router.post('/addOrderDetail', ordersControllers.addOrderDetail);
+router.post('/addOrderDetail', ordersControllers.addOrderDetail);
 
 router.patch('/returnOrderDetail/:detailId',ordersControllers.returnDetail)
 
-router.get('/myOrder',ordersControllers.getOrderByUserID)
+router.get('/myOrder',ordersControllers.getOrderByUserCode)
 
 router.use(isAdmin);
 

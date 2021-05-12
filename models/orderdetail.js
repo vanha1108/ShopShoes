@@ -12,14 +12,11 @@ var orderdetailschema = new Schema(
     orderCode: {
       type: String,
     },
-    unitAmount: {
+    amount: {
       type: Number,
     },
-    unitPrice: {
+    price: {
       type: Number,
-    },
-    isReturn: {
-      type: Boolean,
     }
   },
   { collection: "orderdetail", timestamps: true }

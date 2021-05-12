@@ -7,6 +7,7 @@ const Order = require('../models/order');
 const OrderDetail = require('../models/orderdetail');
 const ProductSize = require('../models/productsize');
 const Size = require('../models/size');
+const user = require('../models/user');
 
 const getAllOrder = async (req, res, next) => {
     let orders;
@@ -87,39 +88,43 @@ const updateOrderByCode = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, order });
 }
 
-// const addOrderDetail = async (req, res, next) => {
-//     const {unitAmount, unitPrice, productSizeCode, orderCode} = req.body;
-//     let orderItem;
+const addOrderDetail = async (req, res, next) => {
+    const {amount, price, productSizeCode, orderCode} = req.body;
+    let orderItem;
 
-//     var code = Util.getCode();
-//     while(!OrderDetail.findOne({code})) {
-//         code = Util.getCode();
-//     };
+    let findProductSize = await ProductSize.findOne({ code: productSizeCode });
+    if (findProductSize == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any productSize!"});
+    }
 
-//     const orderDetails = {
-//         code: code,
-//         productSizeCode: productSizeCode,
-//         orderCode: orderCode,
-//         unitAmount: unitAmount,
-//         unitPrice: unitPrice
-//     };
+    let findOrder = await Order.findOne({code: orderCode});
+    if (findOrder == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any order!"});
+    }
 
-//     try {
-//         orderItem = await OrderDetail.create(orderDetails)
-//     } catch (err) {
-//         return res.status(500).json({code: 500, success: false, message: "System went wrong!"});
-//     }
+    let amountProductSize = findProductSize.productCount - amount;
 
-//     let findProductSize;
-//     findProductSize = await ProductSize.findOne({ code: productSizeCode });
+    var code = Util.getCode();
+    while(!OrderDetail.findOne({code})) {
+        code = Util.getCode();
+    };
 
-//     let amountProductSize;
-//     amountProductSize = findProductSize.productCount - req.body.unitAmount;
+    try {
+        const orderDetails = {
+            code: code,
+            productSizeCode: productSizeCode,
+            orderCode: orderCode,
+            amount: amount,
+            price: price
+        };
+        orderItem = await OrderDetail.create(orderDetails);
 
-//     let updateProductSize;
-//     updateProductSize = await ProductSize.updateOne({ productCount: amountProductSize }, { id: findProductSize.id });
-//     res.status(200).json({ orderItem });
-// }
+        await ProductSize.updateOne({ productCount: amountProductSize }, { code: productSizeCode });
+        return res.status(200).json({ code: 200, success: true, orderItem });
+    } catch (err) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong!"});
+    }
+}
 
 const returnDetail = async (req, res, next) => {
     const detailId = req.params.detailId;
@@ -219,55 +224,25 @@ const success = async (req, res, next) => {
 }
 
 const cancel = async (req, res, next) => {
-    res.status(200).json({ message: "Cancel", errorCode: 1 })
+    return res.status(200).json({ message: "Cancel", errorCode: 1 })
 }
 
-const getOrderByUserID = async (req, res, next) => {
+const getOrderByUserCode = async (req, res, next) => {
     let users;
     let userCurrent = req.userData.email;
-    console.log(req.userData)
-    console.log(userCurrent);
+
     try {
         users = await User.findOne({ email: userCurrent });
     } catch (err) {
-        const error = new HttpError('You are not log in. Pls login', 401);
-        return next(error);
+        return res.status(500).json({code: 500, success: false, message: "System went wrong!"});
     }
 
     if (!users) {
-        const error = new HttpError('Could not find any users', 404);
-        return next(error);
+        return res.status(404).json({code: 404, success: false, message: "Could not find any users!"});
     }
 
-    let orders;
-    orders = await Order.findAll({
-        include: [
-            {
-                model: OrderDetail,
-                include: [
-                    {
-                        model: ProductSize,
-                        include: [
-                            {
-                                model: Product,
-                                include: [
-                                    { model: Brand }
-                                ]
-                            },
-                            {
-                                model: Size
-                            }
-                        ]
-                    }
-                ]
-            },
-        ],
-        where:{
-            userId: users.id
-        }
-    });
-
-    res.status(200).json({orders})
+    let orders = await Order.find({ userCode: users.code });
+    return res.status(200).json({code: 200, success: true, orders})
 }
 
-module.exports = { getAllOrder, addOrder, updateOrderByCode, returnDetail, payment, success, cancel, getOrderByUserID };
+module.exports = { getAllOrder, addOrder, updateOrderByCode, returnDetail, payment, success, cancel, getOrderByUserCode, addOrderDetail };
