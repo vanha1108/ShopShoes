@@ -6,9 +6,6 @@ var importschema = new Schema(
     code: {
       type: String,
     },
-    importDetailCode: {
-      type: String,
-    },
     publisherName: {
       type: String,
     }

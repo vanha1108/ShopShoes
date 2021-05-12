@@ -17,7 +17,7 @@ const getAllImport = async (req, res, next) => {
 }
 
 const addImport = async (req, res, next) => {
-    const {importDetailCode, publisherName} = req.body;
+    const {publisherName} = req.body;
     var code = Util.getCode();
     while(!Import.findOne({code})) {
         code = Util.getCode();
@@ -25,7 +25,6 @@ const addImport = async (req, res, next) => {
 
     const importCreated = {
         code: code,
-        importDetailCode: importDetailCode,
         publisherName: publisherName
     }
     let createImport = await Import.create(importCreated);

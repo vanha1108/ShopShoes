@@ -245,4 +245,14 @@ const getOrderByUserCode = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, orders})
 }
 
-module.exports = { getAllOrder, addOrder, updateOrderByCode, returnDetail, payment, success, cancel, getOrderByUserCode, addOrderDetail };
+module.exports = { 
+    getAllOrder, 
+    addOrder, 
+    updateOrderByCode, 
+    returnDetail, 
+    payment, 
+    success, 
+    cancel, 
+    getOrderByUserCode, 
+    addOrderDetail 
+};
