@@ -102,7 +102,7 @@ const updateProductByCode = async (req, res, next) => {
 };
 
 const createProductSize = async (req, res, next) => {
-    const {productCode, sizeCode} = req.body;
+    const {productCode, sizeCode, productCount} = req.body;
     let product;
     let size;
 
@@ -134,7 +134,8 @@ const createProductSize = async (req, res, next) => {
     const createdProductSize = {
         code: code,
         productCode: productCode,
-        sizeCode: sizeCode
+        sizeCode: sizeCode,
+        productCount: productCount
     }
     let productSize = await ProductSize.create(createdProductSize);
     res.status(200).json({ code: 200, success: true, productSize});

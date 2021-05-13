@@ -1,5 +1,6 @@
 const Import = require('../models/import');
 const ImportDetail = require('../models/importdetail');
+const product = require('../models/product');
 const Util = require('../utils/generateCode');
 
 const getAllImport = async (req, res, next) => {
@@ -33,6 +34,11 @@ const addImport = async (req, res, next) => {
 
 const addImportDetail = async (req, res, next) => {
     const {productSizeCode, importDetailCode, amount, importPrice} = req.body;
+
+    let product = ProductSize.findOne({code: productSizeCode});
+    if (product == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any productSize!"});
+    }
 
     var code = Util.getCode();
     while(!Import.findOne({code})) {
