@@ -153,7 +153,7 @@ const getProductSizeByProductCode = async (req, res, next) => {
             return res.status(404).json({code: 404, success: false, message: "Coud not find any productSize!"});
         }
         productSizes.map(item => {
-            let size = await Size.find ({code: item.sizeCode});
+            let size = Size.find ({code: item.sizeCode});
             if (size == null) {
                 return res.status(404).json({code: 404, success: false, message: "Coud not find any size!"});
             }
