@@ -138,7 +138,24 @@ const createProductSize = async (req, res, next) => {
         productCount: productCount
     }
     let productSize = await ProductSize.create(createdProductSize);
-    res.status(200).json({ code: 200, success: true, productSize});
+    return res.status(200).json({ code: 200, success: true, productSize});
 } 
 
-module.exports = { getAllProduct, getProductByCode, createProduct, createProductSize, updateProductByCode };
+const getProductSizeByProductCode = async (req, res, next) => {
+    const code = req.params.code;
+    let product = await Product.findOne({code})
+    if (product == null) {
+        return res.status(404).json({code: 404, success: false, message: "Coud not find any product!"});
+    }
+    try {
+        let productSizes = await ProductSize.find({productCode: code});
+        if (productSizes == null) {
+            return res.status(404).json({code: 404, success: false, message: "Coud not find any productSize!"});
+        }
+        return res.status(200).json({ code: 200, success: true, productSizes});
+    } catch(error) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any productSize!"});
+    } 
+}
+
+module.exports = { getAllProduct, getProductByCode, createProduct, createProductSize, updateProductByCode, getProductSizeByProductCode };

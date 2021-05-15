@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.get('/', productsControllers.getAllProduct);
 
+router.get('/productSize/:productCode', productsControllers.getProductSizeByProductCode);
+
 router.get('/:code', productsControllers.getProductByCode);
 
 router.post('/', productsControllers.createProduct );
