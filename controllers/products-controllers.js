@@ -106,8 +106,8 @@ const createProductSize = async (req, res, next) => {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
 
-    let productSize = await ProductSize.findOne({code: productSizeCode});
-    if(productSize != null) {
+    let checkProductSize = await ProductSize.findOne({code: productSizeCode});
+    if(checkProductSize != null) {
         return res.status(409).json({code: 409, success: false, message: "Code of productsize already exist!"});
     }
 
