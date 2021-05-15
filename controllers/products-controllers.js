@@ -142,13 +142,13 @@ const createProductSize = async (req, res, next) => {
 } 
 
 const getProductSizeByProductCode = async (req, res, next) => {
-    const code = req.params.code;
-    let product = await Product.findOne({code})
+    const productCode = req.params.productCode;
+    let product = await Product.findOne({code: productCode})
     if (product == null) {
         return res.status(404).json({code: 404, success: false, message: "Coud not find any product!"});
     }
     try {
-        let productSizes = await ProductSize.find({productCode: code});
+        let productSizes = await ProductSize.find({productCode});
         if (productSizes == null) {
             return res.status(404).json({code: 404, success: false, message: "Coud not find any productSize!"});
         }
