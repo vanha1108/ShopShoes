@@ -34,15 +34,15 @@ const getProductByCode = async (req, res, next) => {
 }
 
 const createProduct = async (req, res, next) => {
-    const {name, categoryCode, brandCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
+    const {productCode, name, categoryCode, brandCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
 
-    if (name == "" || categoryCode == "" || color == "" || importPrice == null || brandCode == "") {
+    if (productCode == "", name == "" || categoryCode == "" || color == "" || importPrice == null || brandCode == "") {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
 
-    let product = await Product.findOne({name});
+    let product = await Product.findOne({productCode});
     if(product != null) {
-        return res.status(409).json({code: 409, success: false, message: "Name of product is already exist!"});
+        return res.status(409).json({code: 409, success: false, message: "Code of product is already exist!"});
     }
 
     var code = Util.getCode();
@@ -52,6 +52,7 @@ const createProduct = async (req, res, next) => {
     
     const createdProduct = {
         code: code,
+        productCode: productCode,
         name: name,
         status: "Available",
         image: image,
@@ -78,12 +79,7 @@ const updateProductByCode = async (req, res, next) => {
 
     var product = await Product.findOne({code});
     if (product == null ) {
-        return res.status(404).json({code: 404, success: false, message: "Could not find any product!"});
-    }
-
-    let checkName = await Product.findOne({name});
-    if(checkName != null) {
-        return res.status(409).json({code: 409, success: false, message: "Name of product is already exist!"});
+         return res.status(409).json({code: 409, success: false, message: "Code of productsize already exist!"});
     }
 
     product.name = name;
@@ -102,9 +98,18 @@ const updateProductByCode = async (req, res, next) => {
 };
 
 const createProductSize = async (req, res, next) => {
-    const {productCode, sizeCode, productCount} = req.body;
+    const {sizeCode, productCount} = req.body;
     let product;
     let size;
+
+    if (sizeCode == "", productCount == "") {
+        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
+    }
+
+    let productSize = await ProductSize.findOne({code: productSizeCode});
+    if(productSize != null) {
+        return res.status(409).json({code: 409, success: false, message: "Code of productsize already exist!"});
+    }
 
     try{
         product = await Product.findOne({code: productCode});

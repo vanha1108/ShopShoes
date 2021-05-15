@@ -1,6 +1,5 @@
 const Import = require('../models/import');
 const ImportDetail = require('../models/importdetail');
-const product = require('../models/product');
 const Util = require('../utils/generateCode');
 
 const getAllImport = async (req, res, next) => {
@@ -33,11 +32,15 @@ const addImport = async (req, res, next) => {
 }
 
 const addImportDetail = async (req, res, next) => {
-    const {productSizeCode, importDetailCode, amount, importPrice} = req.body;
-
-    let product = ProductSize.findOne({code: productSizeCode});
+    const {productSizeCode, importCode, amount, importPrice} = req.body;
+    let product = await ProductSize.findOne({code: productSizeCode});
     if (product == null) {
         return res.status(404).json({code: 404, success: false, message: "Could not find any productSize!"});
+    }
+
+    let checkImport = await Import.findOne({code: importCode});
+    if (checkImport == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any import!"});
     }
 
     var code = Util.getCode();
@@ -47,8 +50,8 @@ const addImportDetail = async (req, res, next) => {
     
     const importItem = {
         code: code,
+        importCode: importCode,
         productSizeCode: productSizeCode,
-        importDetailCode: importDetailCode,
         amount : amount,
         importPrice: importPrice,
     };
@@ -60,7 +63,6 @@ const addImportDetail = async (req, res, next) => {
     }
     return res.status(200).json({code: 200, success: true, importDetail});
 }
-
 
 module.exports = {
     addImport, addImportDetail, getAllImport
