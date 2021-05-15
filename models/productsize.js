@@ -6,6 +6,9 @@ var productsizeschema = new Schema(
     code: {
       type: String,
     },
+    productCode: {
+      type: String,
+    },
     sizeCode: {
       type: String,
     },
