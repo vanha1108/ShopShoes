@@ -1,5 +1,6 @@
 const Import = require('../models/import');
 const ImportDetail = require('../models/importdetail');
+const ProductSize = require('../models/productsize');
 const Util = require('../utils/generateCode');
 
 const getAllImport = async (req, res, next) => {
