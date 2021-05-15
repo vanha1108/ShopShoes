@@ -152,7 +152,11 @@ const getProductSizeByProductCode = async (req, res, next) => {
         if (productSizes == null) {
             return res.status(404).json({code: 404, success: false, message: "Coud not find any productSize!"});
         }
-        return res.status(200).json({ code: 200, success: true, productSizes});
+        let size = await Size.findOne({code: productSizes[0].sizeCode});
+        if (size == null) {
+            return res.status(404).json({code: 404, success: false, message: "Coud not find any size!"});
+        }
+        return res.status(200).json({ code: 200, success: true, productSizes, size});
     } catch(error) {
         return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any productSize!"});
     } 
