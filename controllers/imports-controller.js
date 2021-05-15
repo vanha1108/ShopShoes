@@ -65,6 +65,15 @@ const addImportDetail = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, importDetail});
 }
 
+const getImportDetailByImportCode = async (req, res, next) => {
+    const importCode = req.params.importCode;
+    let importDetail = await ImportDetail.find({importCode});
+    if (importDetail == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any importDetail!"});
+    }
+    return res.status(200).json({code: 200, success: true, importDetail});
+}
+
 module.exports = {
-    addImport, addImportDetail, getAllImport
+    addImport, addImportDetail, getAllImport, getImportDetailByImportCode
 }
