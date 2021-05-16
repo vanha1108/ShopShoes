@@ -9,5 +9,6 @@ router.get('/:code', groupsController.getGroupByCode);
 router.post('/', groupsController.createGroup );
 
 router.delete('/:code', groupsController.deleteGroupByCode);
+router.patch('/:code', groupsController.updateGroupByCode);
 
 module.exports = router;

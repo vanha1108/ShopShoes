@@ -78,17 +78,16 @@ const updateGroupByCode = async (req, res, next) => {
     if (name == "") {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
-
-    let group = await Group.findOne({name});
-    if(group != null) {
-        return res.status(409).json({code: 409, success: false, message: "Name of group is already exist!"});
+    
+    var updatedGroup = await Group.findOne({code});
+    if (updatedGroup == null) {
+        return res.status(404).json({code: 404, success: false, message: "Group not found"});
     }
+    updatedGroup.name = name;
+    updatedGroup.summary = summary;
 
-    group.name = name;
-    group.summary = summary;
-
-    await group.save();
-    return res.status(200).json({ code: 200, success: true , group: group });
+    await updatedGroup.save();
+    return res.status(200).json({ code: 200, success: true , group: updatedGroup });
 };
 
 module.exports = { getAllGroup, getGroupByCode, createGroup, updateGroupByCode, deleteGroupByCode};
