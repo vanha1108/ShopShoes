@@ -87,7 +87,7 @@ const updateBrandByCode = async (req, res, next) => {
         return res.status(204).json({code: 204, success: false, message: "Invalid Input! Pls check your data"});
     }
     
-    var updatedBrand = Brand.findOne({code});
+    var updatedBrand = await Brand.findOne({code});
     if (updatedBrand == null) {
         return res.status(404).json({code: 404, success: false, message: "Brand not found"});
     }
