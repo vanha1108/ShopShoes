@@ -11,6 +11,6 @@ router.get('/:code', brandsControllers.getBrandByCode);
 
 router.delete('/:code', brandsControllers.deleteBrandByCode);
 
-router.patch('/:brandId', brandsControllers.updateBrandByCode );
+router.patch('/:code', brandsControllers.updateBrandByCode );
 
 module.exports = router;
