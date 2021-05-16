@@ -87,7 +87,7 @@ const updateGroupByCode = async (req, res, next) => {
     group.name = name;
     group.summary = summary;
 
-    await Brand.updateOne(group, { code: code });
+    await group.save();
     return res.status(200).json({ code: 200, success: true , group: group });
 };
 

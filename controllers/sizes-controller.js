@@ -91,7 +91,7 @@ const updateSize = async (req, res, next) => {
     size.sizeName = sizeName;
     size.sizeType = sizeType;
 
-    await Size.updateOne(size, {code});
+    await size.save();
     return res.status(200).json({code: 200, sucess: true, size}); 
 }
 

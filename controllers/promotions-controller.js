@@ -63,7 +63,7 @@ const updatePromotion = async (req, res, next) => {
     promotion.startDate = startDate;
     promotion.endDate = endDate;
 
-    await Promotion.updateOne(promotion, {code: code});
+    await promotion.save();
     return res.status(200).json({code: 200, success: true, promotion: promotion}); 
 }
 

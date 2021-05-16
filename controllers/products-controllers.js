@@ -93,7 +93,7 @@ const updateProductByCode = async (req, res, next) => {
     product.color = color;
     product.promotion = promotion;
 
-    await Product.updateOne(product, { code: code });
+    await product.save();
     return res.status(200).json({ code: 200, success: true , product });
 };
 

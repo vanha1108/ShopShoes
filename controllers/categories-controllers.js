@@ -95,7 +95,7 @@ const updateCategoryByCode = async (req, res, next) => {
     updatedCategory.image = image;
     updatedCategory.groupCode = groupCode;
 
-    await Category.updateOne(updatedCategory, { code: code});
+    await updatedCategory.save();
     return res.status(200).json({ code: 200, success: true , category: updatedCategory });
 }
 
