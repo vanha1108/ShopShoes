@@ -8,6 +8,8 @@ const OrderDetail = require('../models/orderdetail');
 const ProductSize = require('../models/productsize');
 const Size = require('../models/size');
 const user = require('../models/user');
+const Util = require('../utils/generateCode');
+
 
 const getAllOrder = async (req, res, next) => {
     let orders;
