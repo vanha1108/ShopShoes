@@ -79,7 +79,7 @@ const updateOrderByCode = async (req, res, next) => {
     order.phone = phone;
     order.fullName = fullName;
 
-    let updateOrder = await Order.updateOne(order, { code: code });
+    await Order.updateOne(order, { code: code });
 
     if (req.body.status === 4)            //1: Đã đặt, 2: Đã Duyệt, 3:Đã Thanh Toán, 4: Đã Nhận Hàng
     {

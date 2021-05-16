@@ -95,7 +95,7 @@ const updateBrandByCode = async (req, res, next) => {
     updatedBrand.summary = summary;
     updatedBrand.image = image;
 
-    await Brand.updateOne(updatedBrand,{ code: code });
+    await updatedBrand.save();
     return res.status(200).json({ code: 200, success: true , brands: updatedBrand });
 };
 
