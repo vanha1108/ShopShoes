@@ -12,6 +12,9 @@ var orderdetailschema = new Schema(
     orderCode: {
       type: String,
     },
+    productCode: {
+      type: String,
+    },
     amount: {
       type: Number,
     },

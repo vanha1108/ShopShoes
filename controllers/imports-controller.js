@@ -4,6 +4,7 @@ const ProductSize = require('../models/productsize');
 const Util = require('../utils/generateCode');
 
 const getAllImport = async (req, res, next) => {
+    console.log("vv2");
     let imports;
     try {
         imports = await Import.find();
@@ -15,6 +16,17 @@ const getAllImport = async (req, res, next) => {
           return res.status(404).json({code: 404, success: false, message: "Could not find any import!"});
     }
     return res.status(200).json({code: 200, success: true, imports});
+}
+const getAllImportDetail = async(req, res, next) => {
+    console.log("vv212");
+    let importDetails
+    try {
+        importDetails = await ImportDetail.find();
+    } catch (err) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any product!"});
+    }
+    console.log(importDetails);
+    return res.status(200).json({code: 200, success: true, importDetails});
 }
 
 const addImport = async (req, res, next) => {
@@ -33,7 +45,7 @@ const addImport = async (req, res, next) => {
 }
 
 const addImportDetail = async (req, res, next) => {
-    const {productSizeCode, importCode, amount, importPrice} = req.body;
+    const {productSizeCode,productCode, importCode, amount, importPrice} = req.body;
     let product = await ProductSize.findOne({code: productSizeCode});
     if (product == null) {
         return res.status(404).json({code: 404, success: false, message: "Could not find any productSize!"});
@@ -55,6 +67,7 @@ const addImportDetail = async (req, res, next) => {
         productSizeCode: productSizeCode,
         amount : amount,
         importPrice: importPrice,
+        productCode: productCode
     };
     let importDetail;
     try{
@@ -74,11 +87,8 @@ const getImportDetailByImportCode = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, importDetail});
 }
 
-const getAllImportDetail = async(req, res, next) => {
-    const importDetails = ImportDetail.find();
-    return res.status(200).json({code: 200, success: true, importDetails});
-}
+
 
 module.exports = {
-    addImport, addImportDetail, getAllImport, getImportDetailByImportCode, getAllImportDetail
-}
+    addImport, addImportDetail, getAllImport, getImportDetailByImportCode, getAllImportDetail,
+};

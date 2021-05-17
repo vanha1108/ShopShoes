@@ -94,7 +94,7 @@ const updateOrderByCode = async (req, res, next) => {
 }
 
 const addOrderDetail = async (req, res, next) => {
-    const {amount, price, productSizeCode, orderCode} = req.body;
+    const {amount, price, productSizeCode,productCode, orderCode} = req.body;
     let orderItem;
 
     let findProductSize = await ProductSize.findOne({ code: productSizeCode });
@@ -119,6 +119,7 @@ const addOrderDetail = async (req, res, next) => {
             code: code,
             productSizeCode: productSizeCode,
             orderCode: orderCode,
+            productCode:productCode,
             amount: amount,
             price: price
         };

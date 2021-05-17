@@ -17,6 +17,20 @@ const getAllProduct = async (req, res, next) => {
     }
     return res.status(200).json({success: true ,products});
 }
+const getAllProductSize = async (req, res, next) => {
+    let productSize;
+    try {
+        productSize = await ProductSize.find();
+    } catch (err) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any product!"});
+    }
+
+    if(!productSize)
+    {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any product!"});
+    }
+    return res.status(200).json({success: true ,productSize});
+}
 
 const getProductByCode = async (req, res, next) => {
     const code = req.params.code;
@@ -194,4 +208,6 @@ module.exports = { getAllProduct,
     updateProductByCode, 
     getProductSizeByProductCode, 
     ProductSizeByProductCode,
-    deleteProductByCode };
+    deleteProductByCode,
+    getAllProductSize,
+ };

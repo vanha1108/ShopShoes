@@ -9,6 +9,9 @@ var importdetailschema = new Schema(
     productSizeCode: {
       type: String,
     },
+    productCode:{
+      type: String,
+    },
     importCode: {
       type: String,
     },

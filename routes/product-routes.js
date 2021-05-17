@@ -4,7 +4,7 @@ const productsControllers = require('../controllers/products-controllers');
 const router = express.Router();
 
 router.get('/', productsControllers.getAllProduct);
-
+router.get('/productSize', productsControllers.getAllProductSize);
 router.get('/productSize/size/:productCode', productsControllers.getProductSizeByProductCode);
 
 router.get('/:code', productsControllers.getProductByCode);
