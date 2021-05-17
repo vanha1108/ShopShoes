@@ -18,7 +18,7 @@ const getAllCategory = async (req, res, next) => {
 
 const createCategory = async (req, res, next) => {
     const {name, summary, groupCode} = req.body;
-
+    
     if (name == "" || groupCode == "") {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }
@@ -80,7 +80,7 @@ const deleteCategoryByCode = async (req, res, next) => {
 const updateCategoryByCode = async (req, res, next) => {
     const code = req.params.code;
     const {name, summary, image, groupCode} = req.body;
-     
+    console.log(req.body);
     if (name == "" || groupCode == "") {
         return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
     }

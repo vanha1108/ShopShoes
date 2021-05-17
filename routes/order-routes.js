@@ -26,6 +26,7 @@ router.get('/myOrder',ordersControllers.getOrderByUserCode)
 router.use(isAdmin);
 
 router.patch('/updateOrder/:code',ordersControllers.updateOrderByCode)
+router.patch('/updateStatus/:code',ordersControllers.updateStatus)
 
 
 

@@ -62,7 +62,7 @@ const deleteSizeByCode = async (req, res, next) => {
     let sizes;
 
     try{
-        sizes = await Size.findOne({code});
+        sizes = await Size.findOneAndDelete({code});
     }
     catch (err) {
         return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any size!"});

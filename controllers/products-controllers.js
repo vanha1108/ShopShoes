@@ -71,17 +71,13 @@ const createProduct = async (req, res, next) => {
 
 const updateProductByCode = async (req, res, next) => {
     const code = req.params.code;
-    const {name, categoryCode, brandCode, description, color, image, thumbnail, promotion, importPrice, sellPrice} = req.body;
-    
-    if (name == "" || categoryCode == "" || status == "" || color == "" || importPrice == null || brandCode == "") {
-        return res.status(400).json({code: 400, success: false, message: "Invalid Input! Pls check your data"});
-    }
-
+    const {name, categoryCode, brandCode, description, color, image, thumbnail, promotion, importPrice, sellPrice, productCode} = req.body;
+    console.log("sss",categoryCode);
     var product = await Product.findOne({code});
     if (product == null ) {
          return res.status(409).json({code: 409, success: false, message: "Code of productsize already exist!"});
     }
-
+    product.productCode = productCode
     product.name = name;
     product.categoryCode = categoryCode;
     product.brandCode =brandCode;
@@ -99,6 +95,7 @@ const updateProductByCode = async (req, res, next) => {
 
 const createProductSize = async (req, res, next) => {
     const {productCode, sizeCode, productCount} = req.body;
+    console.log(req.body);
     let product;
     let size;
 

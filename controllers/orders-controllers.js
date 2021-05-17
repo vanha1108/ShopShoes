@@ -250,6 +250,27 @@ const getOrderByUserCode = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, orders})
 }
 
+const updateStatus = async (req, res, next) => {
+    const code = req.params.code;
+    const {status} = req.body;
+    let order = await Order.findOne({code});
+    if(order == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any order!"});
+    } 
+    order.status = status;
+    await order.save();
+    if (req.body.status === 4)            //1: Đã đặt, 2: Đã Duyệt, 3:Đã Thanh Toán, 4: Đã Nhận Hàng
+    {
+        let orderByCode = await Order.findOne({code});
+
+        const userUpdated = {
+            totalPrice: orderByCode.totalPrice
+        }
+        await userUpdated.save();
+    }
+    return res.status(200).json({code: 200, success: true, order });
+}
+
 module.exports = { 
     getAllOrder, 
     addOrder, 
@@ -259,5 +280,6 @@ module.exports = {
     success, 
     cancel, 
     getOrderByUserCode, 
-    addOrderDetail 
+    addOrderDetail,
+    updateStatus
 };
