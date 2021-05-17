@@ -150,14 +150,11 @@ const getProductSizeByProductCode = async (req, res, next) => {
         // let size = await Size.findOne({code: productSizes.sizeCode});
         // console.log("SIZE:  " + size.sizeName);
         if (productSizes == null) {
-            console.log("ST");
             return res.status(404).json({code: 404, success: false, message: "Coud not find any productSize!"});
         }
-        console.log(productSizes.length);
         for (var i = 0 ; i< productSizes.length; i++ ) {
             var size = await Size.findOne({code: productSizes[i].sizeCode});
             if (size == null) {
-                console.log("NULL");
                 return res.status(404).json({code: 404, success: false, message: "Coud not find any size!"});
             }
             productSizes[i].sizeCode = size.sizeName;
@@ -168,4 +165,33 @@ const getProductSizeByProductCode = async (req, res, next) => {
     } 
 }
 
-module.exports = { getAllProduct, getProductByCode, createProduct, createProductSize, updateProductByCode, getProductSizeByProductCode };
+const ProductSizeByProductCode = async (req, res, next) => {
+    const productCode = req.params.productCode;
+    try {
+        let productSizes = await ProductSize.find({productCode: productCode});
+        if (productSizes == null) {
+            return res.status(404).json({code: 404, success: false, message: "Coud not find any productSize!"});
+        }
+        return res.status(200).json({ code: 200, success: true, productSizes});
+    } catch(error) {
+        return res.status(500).json({code: 500, success: false, message: "System went wrong, coud not find any productSize!"});
+    } 
+}
+
+const deleteProductByCode = async (req, res, next) => {
+    const code = req.params.code;
+    let product = await Product.findOneAndDelete({code});
+    if(product == null) {
+        return res.status(404).json({code: 404, success: false, message: "Coud not find any product!"});
+    }
+    return res.status(200).json({code: 200, success: false, message: "Delete success!"});
+}
+
+module.exports = { getAllProduct, 
+    getProductByCode, 
+    createProduct, 
+    createProductSize, 
+    updateProductByCode, 
+    getProductSizeByProductCode, 
+    ProductSizeByProductCode,
+    deleteProductByCode };

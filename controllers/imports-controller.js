@@ -74,6 +74,11 @@ const getImportDetailByImportCode = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, importDetail});
 }
 
+const getAllImportDetail = async(req, res, next) => {
+    const importDetails = ImportDetail.find();
+    return res.status(200).json({code: 200, success: true, importDetails});
+}
+
 module.exports = {
-    addImport, addImportDetail, getAllImport, getImportDetailByImportCode
+    addImport, addImportDetail, getAllImport, getImportDetailByImportCode, getAllImportDetail
 }

@@ -271,6 +271,15 @@ const updateStatus = async (req, res, next) => {
     return res.status(200).json({code: 200, success: true, order });
 }
 
+const getOrderDetailByOrderCode = async(req, res, next) => {
+    const orderCode = req.params.orderCode;
+    let orderDetails = await OrderDetail.find({orderCode});
+    if (orderDetails == null) {
+        return res.status(404).json({code: 404, success: false, message: "Could not find any orderDetail!"});
+    }
+    return res.status(200).json({code: 200, success: true, orderDetails});
+}
+
 module.exports = { 
     getAllOrder, 
     addOrder, 
@@ -281,5 +290,6 @@ module.exports = {
     cancel, 
     getOrderByUserCode, 
     addOrderDetail,
-    updateStatus
+    updateStatus,
+    getOrderDetailByOrderCode
 };
