@@ -188,7 +188,7 @@ const updateMyUser = async(req, res, next) => {
     users.birthday = req.body.birthday;
   
     try{
-        userUpdate = await users,save();
+        userUpdate = await users.save();
     } catch (err) {
         const error = new HttpError('Update Fail', 500);
         return next(error);

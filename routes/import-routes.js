@@ -11,4 +11,6 @@ router.get('/',importsControllers.getAllImport);
 
 router.get('/:importCode',importsControllers.getImportDetailByImportCode);
 
+router.get('/importDetail', importsControllers.getAllImportDetail);
+
 module.exports = router;
