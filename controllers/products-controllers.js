@@ -201,6 +201,15 @@ const deleteProductByCode = async (req, res, next) => {
     return res.status(200).json({code: 200, success: false, message: "Delete success!"});
 }
 
+const getProductByName = async (req, res, next) => {
+    const name = req.body.name;
+    let product = await Product.findOne({name});
+    if(product == null) {
+        return res.status(404).json({code: 404, success: false, message: "Coud not find any product!"});
+    }
+    return res.status(200).json({code: 200, success: true, product});
+}
+
 module.exports = { getAllProduct, 
     getProductByCode, 
     createProduct, 
@@ -210,4 +219,5 @@ module.exports = { getAllProduct,
     ProductSizeByProductCode,
     deleteProductByCode,
     getAllProductSize,
+    getProductByName
  };
