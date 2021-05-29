@@ -23,4 +23,6 @@ router.get('/productSize/:productCode', productsControllers.ProductSizeByProduct
 
 router.post('/product', productsControllers.getProductByName);
 
+router.delete('/productSize/:code', productsControllers.deleteProductSizeByCode);
+
 module.exports = router;

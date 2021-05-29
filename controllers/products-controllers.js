@@ -228,5 +228,6 @@ module.exports = { getAllProduct,
     ProductSizeByProductCode,
     deleteProductByCode,
     getAllProductSize,
-    getProductByName
+    getProductByName,
+    deleteProductSizeByCode
  };
