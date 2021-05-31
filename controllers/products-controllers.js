@@ -57,7 +57,7 @@ const createProduct = async (req, res, next) => {
     let product = await Product.findOne({productCode});
     if(product != null) {
         if (name == product.name) {
-            return res.status(409).json({code: 409, success: false, message: "Product is already exist!", productCode});
+            return res.status(409).json({code: 409, success: false, message: "Product is already exist!", product});
         }
         return res.status(409).json({code: 409, success: false, message: "Code of product is already exist!"});
     }
