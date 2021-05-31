@@ -109,7 +109,6 @@ const updateProductByCode = async (req, res, next) => {
 
 const createProductSize = async (req, res, next) => {
     const {productCode, sizeCode, productCount} = req.body;
-    console.log(req.body);
     let product;
     let size;
 
@@ -141,6 +140,13 @@ const createProductSize = async (req, res, next) => {
     while(!Product.findOne({code})) {
         code = Util.getCode();
     };
+
+    let check = await ProductSize.findOne({productCode: productCode, sizeCode: sizeCode});
+    if (check != null) {
+        check.productCount += productCount;
+        let productSize = await ProductSize.create(check);
+        return res.status(200).json({ code: 200, success: true, productSize});
+    } 
 
     const createdProductSize = {
         code: code,
